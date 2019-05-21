@@ -3,10 +3,12 @@
 
      <!--left-->
     <aside class="left">
-     
+     <a-layout>
       <a-layout-sider width="100px">
         <a-icon type="up-square" class="icon"/>
       </a-layout-sider>
+     
+      </a-layout>
      
     </aside>
      <!-- right -->
