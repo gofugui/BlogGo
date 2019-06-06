@@ -1,14 +1,13 @@
 <template>
-    <a-layout>
+    <div>
         
-    </a-layout>
+    </div>
 </template>
 <script>
 export default {
-    name: 'GobalLayout',
     
 }
 </script>
-<style lang="stylus" scoped>
+<style lang="stylus">
     
 </style>
