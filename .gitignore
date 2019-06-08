@@ -13,3 +13,4 @@ thumbs.db
 !.gitkeep
 yarn-error.log
 docs/dist/
+yarn.lock
