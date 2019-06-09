@@ -14,3 +14,4 @@ thumbs.db
 yarn-error.log
 docs/dist/
 yarn.lock
+package-lock.json

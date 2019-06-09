@@ -16,6 +16,7 @@ module.exports = {
     'html'
   ],
   'rules': {
+    'linebreak-style': 'off',
     'global-require': 0,
     'import/no-unresolved': 0,
     'no-param-reassign': 0,
