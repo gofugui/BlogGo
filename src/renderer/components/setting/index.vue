@@ -1,15 +1,13 @@
 <template>
-   <transition name='page-toggle'>
-        <router-view />
-   </transition>
+     <a-layout :style="{height: '100vh'}">
+        setting
+    </a-layout>
 </template>
 <script>
 export default {
-  name: 'RouterView',
-
+  name: 'Setting',
 };
 </script>
-
 <style lang="stylus" scoped>
     
 </style>

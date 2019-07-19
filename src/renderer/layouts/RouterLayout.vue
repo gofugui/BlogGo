@@ -1,8 +1,6 @@
 <template>
     <global-layout>
-        <div>
-            MenuView1
-        </div>
+    
         <transition name="page-toggle">
             <router-view />
         </transition>
@@ -11,7 +9,7 @@
 <script>
 import GlobalLayout from './GlobalLayout';
 export default {
-  name: 'MenuView',
+  name: 'RouterLayout',
   components: { GlobalLayout },
 };
 </script>

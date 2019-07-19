@@ -10,12 +10,16 @@ module.exports = {
   },
   extends: 'airbnb-base',
   globals: {
-    __static: true
+    __static: true,
+   
   },
   plugins: [
     'html'
   ],
   'rules': {
+   
+    'prefer-rest-params':0,
+    'import/no-extraneous-dependencies':0,
     'linebreak-style': 'off',
     'global-require': 0,
     'import/no-unresolved': 0,

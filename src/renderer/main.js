@@ -1,12 +1,15 @@
 import Vue from 'vue';
 import axios from 'axios';
 import 'iview/dist/styles/iview.css';
-import { Icon, Button } from 'iview';
+import { Icon, Button, Form, FormItem } from 'iview';
 import 'ant-design-vue/dist/antd.css';
 import Antd from 'ant-design-vue';
+
+
 import App from './App';
 import router from './router';
 import store from './store';
+import './assets/font/css/fontello.css';
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
 Vue.http = Vue.prototype.$http = axios;
@@ -14,7 +17,11 @@ Vue.config.productionTip = false;
 
 Vue.component('Button', Button);
 Vue.component('Icon', Icon);
+Vue.component('Form', Form);
+Vue.component('FormItem', FormItem);
+
 Vue.use(Antd);
+
 
 /* eslint-disable no-new */
 new Vue({
@@ -22,4 +29,5 @@ new Vue({
   router,
   store,
   template: '<App/>',
+
 }).$mount('#app');
