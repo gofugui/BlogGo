@@ -1,11 +1,11 @@
 <template>
-   <div id="app">
+   <div id="app" ref="Wrapper">
     <a-layout>
       
       <a-layout-header class="header">
             <top-menu/>
       </a-layout-header>
-      <a-layout-content class="content">
+      <a-layout-content  class="content">
        
         <a-layout>
           <a-layout-sider :width=siderWidth>
@@ -34,18 +34,28 @@
       return {
         siderWidth: 375,
         marginLeft: 375,
+        eWidth: 0,
       };
     },
     components: { TopMenu, LeftSider },
     methods: {
       /** 拖拽 */
-      dragStart() {
+      dragStart(e) {
         const that = this;// 保存this到that
+        const eWidth = that.$refs.Wrapper.clientWidth;
   
-        // e.target.style.opacity = 0.8;
         /* 当鼠标在拖动div按下时绑定鼠标移动事件 */
         document.onmousemove = function (event) {
           const delterX = that.siderWidth - event.clientX;
+          if (event.clientX < 241) {
+            e.target.style.cursor = 'e-resize';
+            return;
+          } else if (event.clientX / eWidth > 0.35 && delterX < 0) {
+            e.target.style.cursor = 'w-resize';
+            return;
+          }
+          e.target.style.cursor = 'col-resize';
+          that.eWidth = eWidth;
           that.siderWidth = event.clientX;
           that.marginLeft -= delterX;
         };
@@ -96,7 +106,7 @@
       position absolute
       right 0px
       &:hover
-        cursor w-resize
+        cursor col-resize
     .ant-layout-content
       width 100%
       position fixed

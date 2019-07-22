@@ -1,15 +1,10 @@
 <template>
   <div>
-      <div class="item">
+      
+     <div class="item" @click.prevent='onItemClick(index)' v-bind:class="{select:isSel === index}" v-for="(item,index) in arr" :key="index">
        
         <div class="itemContent">
-          123
-        </div>
-      </div>
-       <div class="item">
-       
-        <div class="itemContent">
-          456
+          {{item}}
         </div>
       </div>
      
@@ -20,12 +15,21 @@ export default {
   data() {
     return {
       arr: ['123', '234', '345'],
+      isSel: -1,
     };
+  },
+  methods: {
+    onItemClick(index) {
+      this.isSel = index;
+    },
   },
 };
 </script>
 <style lang="stylus" scoped>
- //background rgba(195,151,61,1)
+    .select
+      background rgba(194,150,60,1)
+      div.itemContent
+        border-bottom: 0px
     .item
       width 100%
       height 58px
