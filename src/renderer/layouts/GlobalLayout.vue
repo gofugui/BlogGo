@@ -1,23 +1,9 @@
 <template>
     <a-layout :style="{height: '100vh'}">
-        <a-button @click="showModal" type="primary" class="btn" shape="circle" icon="plus" size="large" />
-        <blog-modal :open-modal="showBlogModal" @change="onBlogModalChange">
-            <add-blog @change="onBlogModalChange"/>
-        </blog-modal>
-       
-        <a-layout-sider v-show="visible" width="300px" class="leftSider">
-            
-            <left-sider :open-drawer="showSetting" @change="onSettingDrawerChange"/>
-          
-        </a-layout-sider>
-       
+        
           
          <a-layout>
-          <drawer :openDrawer="showSetting" placement="right"  @change="onSettingDrawerChange">
-           
-              <setting/>
-            
-          </drawer>
+         
           
           <a-layout-content>
               <slot></slot>

@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron' // eslint-disable-line
+import electron,{ app, BrowserWindow, Menu } from 'electron' // eslint-disable-line
+
 
 /**
  * Set `__static` path to static files in production
@@ -18,9 +19,21 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+
+    height: 900,
     useContentSize: true,
-    width: 1000,
+    minWidth: 500,
+    minHeight: 387,
+    skipTaskbar: false,
+
+    backgroundColor: 'rgba(62,63,65,.1)',
+    width: 830,
+    titleBarStyle: 'hiddenInset',
+    webPreferences: {
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true,
+      backgroundThrottling: false,
+    },
   });
 
   mainWindow.loadURL(winURL);

@@ -1,23 +1,32 @@
 <template>
-   <a-collapse >
-      <a-collapse-panel header="博客 89891" key="1">
+ 
+  
+   <a-collapse v-model="activeKey">
+      <a-collapse-panel header="博客 1" key="1">
         <div class="collapse">
-      
-        <a-button shape="circle" icon="ellipsis"/>
-        <!--
-        <a-button shape="circle" @click="add" icon="file-add"/>
-        <a-button shape="circle" @click="upload" icon="cloud-upload"/>
-        <a-button shape="circle" @click="setting" icon="setting" />
-        -->
+          <a-popover placement="leftTop">
+            <template  slot="content">
+              <article-menu @add="add"/>
+            </template>
+            <a-button shape="circle" icon="ellipsis"/>
+          </a-popover>
+          
         </div>
          <a-list>
-          <a-list-item @click="selectItem" v-for="(item,index) in dataArr" :key="index">
+          <a-list-item class="item" @click="selectItem" v-for="(item,index) in dataArr" :key="index">
           
-              <a-button slot="actions" shape="circle" @click="upload" icon="ellipsis"/>
+              
+              <a-popover class="more" slot="actions" placement="leftTop">
+                <template  slot="content">
+                  <editor-menu/>
+                </template>
+                <a-button shape="circle" icon="ellipsis"/>
+              </a-popover>
+            
               <a-list-item-meta>
                
                 <a slot="title">{{item.title}}</a>
-                <div slot="description">{{item.description}}</div>
+                <div class="description" slot="description">{{item.description}}</div>
                 
               </a-list-item-meta>
            
@@ -37,8 +46,11 @@
 
 </template>
 <script>
+import ArticleMenu from '../menu/ArticleMenu';
+import EditorMenu from '../menu/EditorMenu';
 export default {
   name: 'LeftSider',
+  components: { ArticleMenu, EditorMenu },
   data() {
     return {
       text: '暂时没有博文',
@@ -67,12 +79,19 @@ export default {
       ],
     };
   },
+  props: {
+    openDrawer: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
   methods: {
     selectItem() {
       this.$router.push({ name: 'editor' });
     },
     setting() {
-      this.$router.push({ name: 'setting' });
+      this.$emit('change', !this.openDrawer);
     },
     upload() {
 
@@ -83,6 +102,7 @@ export default {
         description: '暂无附加文本',
       });
     },
+
   },
 };
 </script>
@@ -94,7 +114,10 @@ export default {
       margin-top: 10px
       margin-right: 25px
   .item
-     &:hover
-        color: #eee
- 
+      cursor pointer
+      &:hover
+        .more
+          display inline-block 
+  .more
+    display none
 </style>

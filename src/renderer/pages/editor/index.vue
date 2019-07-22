@@ -1,6 +1,6 @@
 <template>
      <div id="editor">
-        <mavon-editor @save="$save" style="height: 100%"></mavon-editor>
+      
     </div>
 </template>
 <script>
