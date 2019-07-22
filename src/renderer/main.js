@@ -4,7 +4,7 @@ import 'iview/dist/styles/iview.css';
 import { Icon, Button, Form, FormItem } from 'iview';
 import 'ant-design-vue/dist/antd.css';
 import Antd from 'ant-design-vue';
-
+import Device from '../tools/device';
 
 import App from './App';
 import router from './router';
@@ -21,7 +21,7 @@ Vue.component('Form', Form);
 Vue.component('FormItem', FormItem);
 
 Vue.use(Antd);
-
+Vue.prototype.Device = Device;
 
 /* eslint-disable no-new */
 new Vue({

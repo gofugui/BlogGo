@@ -9,11 +9,12 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\') // eslint-disable-line
 }
 
+
 let mainWindow;
 const winURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:9080'
   : `file://${__dirname}/index.html`;
-
+// const frame = process.platform === 'darwin';
 function createWindow() {
   /**
    * Initial window options
@@ -24,8 +25,8 @@ function createWindow() {
     useContentSize: true,
     minWidth: 500,
     minHeight: 387,
-    skipTaskbar: false,
-
+    fullscreenWindowTitle: true,
+    autoHideMenuBar: true,
     backgroundColor: 'rgba(62,63,65,.1)',
     width: 830,
     titleBarStyle: 'hiddenInset',

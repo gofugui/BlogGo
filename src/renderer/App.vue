@@ -8,12 +8,14 @@
       <a-layout-content class="content">
        
         <a-layout>
-          <a-layout-sider width='375'>
+          <a-layout-sider :width=siderWidth>
+            <span class="presentation" @mousedown.prevent='dragStart'></span>
             <left-sider/>
+            
           </a-layout-sider>
         
-          <a-layout-content>
-     
+          <a-layout-content :style="{marginLeft:`${marginLeft}px`}">
+            21212121111
           </a-layout-content>
          
         </a-layout>
@@ -28,7 +30,32 @@
   import LeftSider from './components/sider';
   export default {
     name: 'bloggo',
+    data() {
+      return {
+        siderWidth: 375,
+        marginLeft: 375,
+      };
+    },
     components: { TopMenu, LeftSider },
+    methods: {
+      /** 拖拽 */
+      dragStart() {
+        const that = this;// 保存this到that
+  
+        // e.target.style.opacity = 0.8;
+        /* 当鼠标在拖动div按下时绑定鼠标移动事件 */
+        document.onmousemove = function (event) {
+          const delterX = that.siderWidth - event.clientX;
+          that.siderWidth = event.clientX;
+          that.marginLeft -= delterX;
+        };
+        document.onmouseup = function () {
+          // 还原事件
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      },
+    },
   };
 </script>
 
@@ -54,21 +81,25 @@
       border-bottom .3px solid rgba(0,0,0,1)
   .content
     width 100%
+    height 100vh
     color #fff
     margin-top 35px
+    background rgba(30,31,33,1)
     .ant-layout-sider
       background rgba(30,31,33,1)
       position fixed
       height 100%
       border-right:.3px solid rgba(0,0,0,1);
+    .presentation
+      width 10px
+      height 100%
+      position absolute
+      right 0px
+      &:hover
+        cursor w-resize
     .ant-layout-content
       width 100%
-      margin-left 375px
       position fixed
       height 100%
       background rgba(39,38,39,1)
-  .el-button-group
-    width 100%
-    .el-button
-      width 50%
 </style>
