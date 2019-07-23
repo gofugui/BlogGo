@@ -1,6 +1,6 @@
 <template>
    <div class="menu" :style="{paddingLeft:pl, paddingRight:pl}">
-      <a-tag color="rgba(104,104,107,1)">文件</a-tag>
+      <a-tag @click="onShowFolder" color="rgba(104,104,107,1)">文件</a-tag>
       <a-tag color="rgba(104,104,107,1)">附件</a-tag>
       <a-tag color="rgba(104,104,107,1)">删除</a-tag>
       <a-tag color="rgba(104,104,107,1)">新建</a-tag>
@@ -25,7 +25,14 @@ export default {
   data() {
     return {
       pl: this.Device.isWindows ? '10px' : '80px',
+
     };
+  },
+  methods: {
+    onShowFolder() {
+      this.showFolder = !this.showFolder;
+      this.$emit('change', this.showFolder);
+    },
   },
 };
 </script>

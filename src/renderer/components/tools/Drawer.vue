@@ -1,6 +1,6 @@
 <template>
   <div >
-    <div :class="['mask', openDrawer ? 'open' : 'close']" @click="close"></div>
+    <div :class="['mask', openDrawer&&showMask ? 'open' : 'close']" @click="close"></div>
     <div :class="['drawer', placement, openDrawer ? 'open' : 'close']">
       <div ref="drawer" style="position: relative; height: 100%; width:256px">
         <slot></slot>
@@ -33,6 +33,11 @@ export default {
       type: Boolean,
       required: false,
       default: true,
+    },
+    showMask: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   mounted() {
@@ -71,7 +76,7 @@ export default {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
     transition: all 0.5s;
-    z-index: 9000;
+    //z-index: 9000;
     &.open{
       display: inline-block;
     }
@@ -83,7 +88,7 @@ export default {
     position: fixed;
     height: 100%;
     transition: all 0.5s;
-    z-index: 9999;
+    z-index 1
     &.left{
       left: 0px;
       &.open{
