@@ -4,6 +4,7 @@
       
       <a-layout-header class="header">
         <top-menu  @change="onMenuEvent"/>
+       
       </a-layout-header>
       
       <a-layout-content class="content">
@@ -17,12 +18,10 @@
         <a-layout :class="['wrapper',openDrawer?'open':'close']" :style="{marginLeft:`${openDrawer?innerSiderWidth-200:0}px`}">
          
          
-          <a-layout-content :style="{paddingLeft:`${marginLeft + 10}px`}">
-            <div contenteditable="true">
-              a111111111111112222wjdiwjdiwjid;l'dl'ksdnlksndkldkdlksiowjeioa,sl,xasl,l;;';;lpepf;lc;'s;';s';d's;'d;';'s'';'a's;'a'as;'a;s';
-              iweiweiwjijdnjn
-              wiewijp''']''''''';';';';';';''';';''
-            </div>
+          <a-layout-content :style="{paddingLeft:`${marginLeft + 25}px`,width:`calc(100% - ${openDrawer? innerSiderWidth+'px':0+'px'})`}">
+            <div class="label"><label>今天 17:00</label></div>
+            <div contenteditable="true" class="editorContent" />
+        
           </a-layout-content>
          <a-layout-sider :width=siderWidth>
             <span class="presentation" @mousedown.prevent='dragStart'></span>
@@ -115,7 +114,12 @@
 </script>
 
 <style lang="stylus">
-  
+  ::-webkit-scrollbar
+        width 10px
+    ::-webkit-scrollbar-thumb
+        border-radius 10px
+        -webkit-box-shadow inset 0 0 5px rgba(0,0,0,0.2)
+        background #535353 
   body,
   html
     padding 0
@@ -134,6 +138,7 @@
       height 38px
       width 100%
       border-bottom .3px solid rgba(0,0,0,1)
+      z-index 9999
   .content
     position fixed
     width 100%
@@ -144,7 +149,6 @@
     .innerWrapper
       transition: all 0.5s;
       .ant-layout-sider
-      
         background: linear-gradient(to bottom right, rgba(45,45,49,.6) , rgba(46,49,58,.6));
       &.show
         opacity 1.0
@@ -152,6 +156,7 @@
         opacity 0.0
     .wrapper
       position absolute
+      width 100%
       transition: all 0.5s;
       &.open
         left 200px
@@ -161,19 +166,38 @@
       background rgba(30,31,33,1)
       position fixed
       height 100%
+      padding-bottom 40px
       border-right:.3px solid rgba(0,0,0,1);
       box-shadow: -2px 0 8px rgba(0,0,0,.15);
     .presentation
-      width 10px
+      width 3px
       height 100%
       position absolute
       right 0px
       &:hover
         cursor col-resize
     .ant-layout-content
+      
       width 100%
       position fixed
-      height 100%
+      height calc(100% - 40px)
       background rgba(39,38,39,1)
-      padding 20px
+      padding-left 25px
+      padding-right 25px
+      padding-bottom 25px
+      transition all 0.5s
+      div.label
+        display flex
+        height 30px
+        width 100%
+        justify-content center
+        align-items center
+        font-size 12px
+        color gray
+      div.editorContent
+        width 100%
+        height calc(100% - 30px)
+        outline 0
+         
+      
 </style>
