@@ -8,22 +8,27 @@
       
       <a-layout-content class="content">
         <a-layout :class="['innerWrapper',openDrawer?'show':'hide']">
-          <a-layout-sider>
+          <a-layout-sider :width=innerSiderWidth>
           123
+          <span class="presentation" @mousedown.prevent='siderDragStart'></span>
           </a-layout-sider>
          
         </a-layout>
-        <a-layout :class="['wrapper',openDrawer?'open':'close']">
-          <a-layout-sider :width=siderWidth>
+        <a-layout :class="['wrapper',openDrawer?'open':'close']" :style="{marginLeft:`${openDrawer?innerSiderWidth-200:0}px`}">
+         
+         
+          <a-layout-content :style="{paddingLeft:`${marginLeft + 10}px`}">
+            <div contenteditable="true">
+              a111111111111112222wjdiwjdiwjid;l'dl'ksdnlksndkldkdlksiowjeioa,sl,xasl,l;;';;lpepf;lc;'s;';s';d's;'d;';'s'';'a's;'a'as;'a;s';
+              iweiweiwjijdnjn
+              wiewijp''']''''''';';';';';';''';';''
+            </div>
+          </a-layout-content>
+         <a-layout-sider :width=siderWidth>
             <span class="presentation" @mousedown.prevent='dragStart'></span>
             <left-sider/>
             
           </a-layout-sider>
-        
-          <a-layout-content :style="{marginLeft:`${marginLeft}px`}">
-            21212121111
-          </a-layout-content>
-         
         </a-layout>
        
       </a-layout-content>
@@ -36,7 +41,7 @@
   import TopMenu from './components/menu/TopMenu';
   import LeftSider from './components/sider';
   import Drawer from './components/tools/Drawer';
-  
+  const minSiderWidth = 241;
   export default {
     name: 'bloggo',
     data() {
@@ -45,22 +50,44 @@
         marginLeft: 375,
         eWidth: 0,
         openDrawer: false,
+        innerSiderWidth: 200,
   
       };
     },
     components: { TopMenu, LeftSider, Drawer },
     methods: {
+      /** 侧边抽屉 */
+      siderDragStart(e) {
+        /* 当鼠标在拖动div按下时绑定鼠标移动事件 */
+        document.onmousemove = (event) => {
+          const delterX = this.innerSiderWidth - event.clientX;
+          if (event.clientX > 300 && delterX < 0) {
+            e.target.style.cursor = 'w-resize';
+          } else if (event.clientX < 200) {
+            e.target.style.cursor = 'e-resize';
+          } else {
+            e.target.style.cursor = 'col-resize';
+            this.innerSiderWidth = event.clientX;
+          }
+        };
+        document.onmouseup = () => {
+          // 还原事件
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      },
       /** 拖拽 */
       dragStart(e) {
-        const drawerWidth = 200;
+        const drawerWidth = this.innerSiderWidth;
         const eWidth = this.openDrawer ? this.$refs.Wrapper.clientWidth - drawerWidth :
           this.$refs.Wrapper.clientWidth;
-        const viewPagePercent = this.Device.isWindows ? 0.45 : 0.35;
+        const viewPagePercent = 0.45;
+  
         /* 当鼠标在拖动div按下时绑定鼠标移动事件 */
         document.onmousemove = (event) => {
           const clientX = this.openDrawer ? event.clientX - drawerWidth : event.clientX;
           const delterX = this.siderWidth - clientX;
-          if (clientX < 241) {
+          if (clientX < minSiderWidth) {
             e.target.style.cursor = 'e-resize';
             return;
           } else if (clientX / eWidth > viewPagePercent && delterX < 0) {
@@ -83,6 +110,7 @@
         this.openDrawer = show;
       },
     },
+  
   };
 </script>
 
@@ -115,6 +143,9 @@
     background rgba(30,31,33,1)
     .innerWrapper
       transition: all 0.5s;
+      .ant-layout-sider
+      
+        background: linear-gradient(to bottom right, rgba(45,45,49,.6) , rgba(46,49,58,.6));
       &.show
         opacity 1.0
       &.hide
@@ -144,5 +175,5 @@
       position fixed
       height 100%
       background rgba(39,38,39,1)
-     
+      padding 20px
 </style>
