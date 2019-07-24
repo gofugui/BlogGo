@@ -16,7 +16,11 @@
 export default {
   data() {
     return {
-      arr: ['123', '234', '345', '2323', '2323', 'erere'],
+      arr: ['123', '234', '345', '2323', '2323', 'erere',
+        '123', '234', '345', '2323', '2323', 'erere',
+        '123', '234', '345', '2323', '2323', 'erere',
+        '123', '234', '345', '2323', '2323', 'erere',
+      ],
       isSel: -1,
     };
   },
@@ -30,14 +34,18 @@ export default {
 <style lang="stylus" scoped>
     ::-webkit-scrollbar
         width 10px
+     
     ::-webkit-scrollbar-thumb
         border-radius 10px
         -webkit-box-shadow inset 0 0 5px rgba(0,0,0,0.2)
         background #535353 
     .leftSider
-      overflow-y auto
+      overflow-y hidden
+      transition 0.5s all
       height 100%
-      margin-right 2px
+      
+      &:hover
+        overflow-y overlay
 
     .select
       background rgba(194,150,60,1)
@@ -49,6 +57,7 @@ export default {
       padding-left 20px
       padding-top 10px
       padding-right 0.5px
+      
       .itemContent
         width 100%
         height 100%

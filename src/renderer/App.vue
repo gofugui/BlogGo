@@ -169,6 +169,8 @@
       padding-bottom 40px
       border-right:.3px solid rgba(0,0,0,1);
       box-shadow: -2px 0 8px rgba(0,0,0,.15);
+      &:hover
+        overflow-y overlay
     .presentation
       width 3px
       height 100%
@@ -186,7 +188,9 @@
       padding-right 25px
       padding-bottom 25px
       transition all 0.5s
+      overflow-y hidden
       div.label
+      
         display flex
         height 30px
         width 100%
