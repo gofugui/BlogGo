@@ -63,10 +63,4 @@ export default {
         height 100%
         border-bottom:.05px solid rgba(52,53,55,1);
         padding-bottom 10px
-       
-
-     
-     
-  
-     
 </style>
