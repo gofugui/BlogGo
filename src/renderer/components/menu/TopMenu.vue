@@ -17,9 +17,7 @@
         <a-tag color="rgba(104,104,107,1)">联系人</a-tag>
         <a-tag color="rgba(104,104,107,1)">共享</a-tag>
       </div>
-      <a-input placeholder="搜索" size='small' :style="{width:'260px'}" >
-        <a-icon slot="prefix" type="search" />
-      </a-input>
+      <Input v-model="searchText" prefix="ios-search" placeholder="搜索" style="width: 220px" />
     </div>
 </template>
 <script>
@@ -29,7 +27,7 @@ export default {
   data() {
     return {
       pl: this.Device.isWindows ? '10px' : '80px',
-
+      searchText: '',
     };
   },
   methods: {

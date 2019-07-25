@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 import 'iview/dist/styles/iview.css';
-import { Icon, Button, Form, FormItem, Dropdown, DropdownMenu, DropdownItem } from 'iview';
+import { Icon, Button, Form, FormItem, Dropdown, DropdownMenu, DropdownItem, Input } from 'iview';
 import 'ant-design-vue/dist/antd.css';
 import Antd from 'ant-design-vue';
 import Device from '../tools/device';
@@ -22,6 +22,7 @@ Vue.component('FormItem', FormItem);
 Vue.component('Dropdown', Dropdown);
 Vue.component('DropdownMenu', DropdownMenu);
 Vue.component('DropdownItem', DropdownItem);
+Vue.component('Input', Input);
 Vue.use(Antd);
 Vue.prototype.Device = Device;
 
