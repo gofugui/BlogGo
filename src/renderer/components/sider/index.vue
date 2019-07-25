@@ -32,13 +32,7 @@ export default {
 };
 </script>
 <style lang="stylus" scoped>
-    ::-webkit-scrollbar
-        width 10px
-     
-    ::-webkit-scrollbar-thumb
-        border-radius 10px
-        -webkit-box-shadow inset 0 0 5px rgba(0,0,0,0.2)
-        background #535353 
+    
     .leftSider
       overflow-y hidden
       transition 0.5s all
@@ -52,11 +46,12 @@ export default {
       div.itemContent
         border-bottom: 0px
     .item
+      
       width 100%
       height 58px
       padding-left 20px
       padding-top 10px
-      padding-right 0.5px
+     
       
       .itemContent
         width 100%

@@ -115,11 +115,17 @@
 
 <style lang="stylus">
   ::-webkit-scrollbar
-        width 10px
-    ::-webkit-scrollbar-thumb
-        border-radius 10px
-        -webkit-box-shadow inset 0 0 5px rgba(0,0,0,0.2)
-        background #535353 
+        width 15px
+     
+  ::-webkit-scrollbar-thumb
+      border-radius 10px
+      -webkit-box-shadow inset 0 0 8px rgba(0,0,0,0.2)
+      background #535353 
+    
+  ::-webkit-scrollbar-track
+      -webkit-box-shadow inset 0 0 8px rgba(0,0,0,0.3)
+      border-radius 10px
+      background-color rgba(85,85,93,.5)
   body,
   html
     padding 0
@@ -145,6 +151,7 @@
     height 100%
     color #fff
     top 38px
+   
     background rgba(30,31,33,1)
     .innerWrapper
       transition: all 0.5s;
@@ -169,8 +176,7 @@
       padding-bottom 40px
       border-right:.3px solid rgba(0,0,0,1);
       box-shadow: -2px 0 8px rgba(0,0,0,.15);
-      &:hover
-        overflow-y overlay
+  
     .presentation
       width 3px
       height 100%
@@ -179,8 +185,6 @@
       &:hover
         cursor col-resize
     .ant-layout-content
-      
-      width 100%
       position fixed
       height calc(100% - 40px)
       background rgba(39,38,39,1)
@@ -189,8 +193,10 @@
       padding-bottom 25px
       transition all 0.5s
       overflow-y hidden
+      &:hover
+        overflow-y overlay
+       
       div.label
-      
         display flex
         height 30px
         width 100%
