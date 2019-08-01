@@ -1,6 +1,6 @@
-import electron,{ app, BrowserWindow, Menu } from 'electron' // eslint-disable-line
+import { app, BrowserWindow, Menu,systemPreferences } from 'electron' // eslint-disable-line
 
-
+import store from '../renderer/store';
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -26,13 +26,15 @@ function createWindow() {
     minHeight: 387,
     fullscreenWindowTitle: true,
     autoHideMenuBar: true,
-    backgroundColor: 'rgba(62,63,65,.1)',
+    backgroundColor: '#272c37',
     width: 830,
     titleBarStyle: 'hiddenInset',
+    darkTheme: true,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       backgroundThrottling: false,
+      scrollBounce: true,
     },
   });
 
@@ -55,4 +57,12 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+app.on('browser-window-blur', () => {
+  store.commit('app/setAppState', false);
+});
+
+app.on('browser-window-focus', () => {
+  store.commit('app/setAppState', true);
 });

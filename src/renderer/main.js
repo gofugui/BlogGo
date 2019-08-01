@@ -1,9 +1,11 @@
 import Vue from 'vue';
 import axios from 'axios';
 import 'iview/dist/styles/iview.css';
-import { Icon, Button, Form, FormItem, Dropdown, DropdownMenu, DropdownItem, Input } from 'iview';
-import 'ant-design-vue/dist/antd.css';
+import { Icon, Button, Form, FormItem, Dropdown, DropdownMenu, DropdownItem, Input, Poptip } from 'iview';
 import Antd from 'ant-design-vue';
+import './dist/antd.css';
+
+
 import Device from '../tools/device';
 
 import App from './App';
@@ -19,11 +21,14 @@ Vue.component('Button', Button);
 Vue.component('Icon', Icon);
 Vue.component('Form', Form);
 Vue.component('FormItem', FormItem);
+
 Vue.component('Dropdown', Dropdown);
 Vue.component('DropdownMenu', DropdownMenu);
 Vue.component('DropdownItem', DropdownItem);
+Vue.component('Poptip', Poptip);
 Vue.component('Input', Input);
 Vue.use(Antd);
+
 Vue.prototype.Device = Device;
 
 /* eslint-disable no-new */
@@ -34,3 +39,4 @@ new Vue({
   template: '<App/>',
 
 }).$mount('#app');
+
