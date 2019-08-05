@@ -55,6 +55,7 @@
   "devDependencies": {
     "@editorjs/attaches": "^1.0.1",
     "@editorjs/delimiter": "^1.1.0",
+    "@editorjs/editorjs": "^2.15.0",
     "@editorjs/header": "^2.3.0",
     "@editorjs/personality": "^2.0.1",
     "@editorjs/quote": "^2.3.0",

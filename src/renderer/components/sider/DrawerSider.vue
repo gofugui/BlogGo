@@ -17,9 +17,12 @@ export default {
   data() {
     return {
 
-      menu: [[{ label: '给文件夹重新命名...', disable: true, onPress: this.reNameFolder }, { label: '删除文件夹...', disable: true, onPress: this.deleteFolder }], [{
-        type: 'separator',
-      }], [{ label: '新建文件夹...', onPress: this.addFolder }]],
+      menu: [
+        [{ label: '给文件夹重新命名...', disable: true, onPress: this.reNameFolder },
+          { label: '删除文件夹...', disable: true, onPress: this.deleteFolder }],
+        [{
+          type: 'separator',
+        }], [{ label: '新建文件夹...', onPress: this.addFolder }]],
       sel: -1,
       currentEditorName: '',
       unEditorAble: ['备忘录', '最近删除'],
@@ -123,7 +126,6 @@ export default {
         height 100%
         position relative
         width 100%
-        height 100%
         min-width 200px
         outline 0
     .drawerlist

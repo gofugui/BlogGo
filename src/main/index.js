@@ -1,6 +1,5 @@
 import { app, BrowserWindow, Menu,systemPreferences } from 'electron' // eslint-disable-line
 
-import store from '../renderer/store';
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -20,15 +19,15 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 900,
+
     useContentSize: true,
-    minWidth: 1300,
-    minHeight: 387,
     fullscreenWindowTitle: true,
     autoHideMenuBar: true,
     backgroundColor: '#272c37',
-    width: 1300,
-
+    width: 830,
+    minWidth: 550,
+    height: 900,
+    minHeight: 387,
     darkTheme: true,
     titleBarStyle: 'hidden',
     webPreferences: {
@@ -60,10 +59,10 @@ app.on('activate', () => {
   }
 });
 
-app.on('browser-window-blur', () => {
-  store.commit('app/setAppState', false);
-});
+// app.on('browser-window-blur', () => {
+//   store.commit('app/setAppState', false);
+// });
 
-app.on('browser-window-focus', () => {
-  store.commit('app/setAppState', true);
-});
+// app.on('browser-window-focus', () => {
+//   store.commit('app/setAppState', true);
+// });

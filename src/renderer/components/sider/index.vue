@@ -1,7 +1,7 @@
 <template>
 
   <div @blur="divOnBlur" @focus="divOnFocus" tabindex="1" class="leftSider">
-      <context-menu :menu="menu" :show="show"/>
+     
     
       <div class="item" @click.prevent='onItemClick(index)' v-bind:class="{defaultStyle:isSel===-1&&index === 0,
       select:isSel === index,unfocus:isSel === index&&(!isFocus)}" v-for="(item,index) in arr" :key="index">
@@ -16,9 +16,9 @@
   
 </template>
 <script>
-import ContextMenu from '../menu/ContextMenu';
+import bus from '../../common/js/bus';
 export default {
-  components: { ContextMenu },
+
   data() {
     return {
       arr: ['123', '234', '345', '2323', '2323', 'erere', '123', '234', '345', '2323', '2323', 'erere', '123', '234', '345', '2323', '2323', 'erere',
@@ -26,17 +26,7 @@ export default {
       isSel: -1,
       isFocus: false,
       show: false,
-      menu: [[{ label: '删除', onPress: () => null }],
-        [{ type: 'separator' }],
-        [{ label: '置顶备忘录', onPress: () => null },
-          { label: '锁定备忘录', onPress: () => null }], [{
-          type: 'separator',
-        }], [{ label: '移到', onPress: () => null }],
-        [{
-          type: 'separator',
-        }],
-        [{ label: '新建备忘录', onPress: () => null }],
-      ],
+
     };
   },
   methods: {
@@ -46,6 +36,22 @@ export default {
     divOnFocus() {
       this.isFocus = true;
       this.show = true;
+      bus.$emit('show', {
+        menu: [
+          [{ label: '删除', onPress: () => null }],
+          [{ type: 'separator' }],
+          [{ label: '置顶备忘录', onPress: () => null },
+            { label: '锁定备忘录', onPress: () => null }],
+          [{
+            type: 'separator',
+          }],
+          [{ label: '移到', onPress: () => null }],
+          [{
+            type: 'separator',
+          }],
+          [{ label: '新建备忘录', onPress: () => null }],
+        ],
+      });
     },
     divOnBlur() {
       this.isFocus = false;

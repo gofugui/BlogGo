@@ -15,12 +15,11 @@ if (process.type !== 'renderer') {
   }
 }
 
+
 const adapter = new FileSync(path.join(STORE_PATH, '/data.json')); // 初始化lowdb读写的json文件名以及存储路径
 
 const db = Datastore(adapter); // lowdb接管该文件
-
-if (!db.get('tags').value().length) {
-  const uuidV4 = require('uuid/v4');
+if (!db.get('tags').value()) {
   db.defaults({
     tags: [],
     posts: [],
@@ -28,6 +27,11 @@ if (!db.get('tags').value().length) {
     user: {},
     count: 0,
   }).write();
+}
+
+if (!db.get('tags').value().length) {
+  const uuidV4 = require('uuid/v4');
+
   db.get('tags')
     .push({ id: uuidV4(), name: '备忘录' }, { id: uuidV4(), name: '最近删除' })
     .write();

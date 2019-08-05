@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" id="splitter-pane">
 		<slot></slot>
 	</div>
 </template>
@@ -21,21 +21,28 @@
 </script>
 
 <style scoped>
+ 
 .splitter-pane.vertical.splitter-paneL {
-  overflow: auto;
+  overflow: hidden;
   position: absolute;
   left: 0px;
   height: 100%;
   padding-right: 1px;
   box-shadow: 2px 0 8px rgba(0,0,0,.15)
 }
+.splitter-pane.vertical.splitter-paneL:hover{
+  overflow: overlay;
+}
 .splitter-pane.vertical.splitter-paneR {
-  overflow: auto;
+  overflow: hidden;
   position: absolute;
   right: 0px;
   height: 100%;
   padding-left: 1px;
   box-shadow: 2px 0 8px rgba(0,0,0,.15)
+}
+.splitter-pane.vertical.splitter-paneR:hover{
+  overflow: overlay;
 }
 .splitter-pane.horizontal.splitter-paneL {
   position: absolute;

@@ -1,7 +1,7 @@
 <template>
-<div>
+   
     <!--<div :class="['mask', showMenu ? 'open' : 'close']" @click="hideMenu"></div>-->
-    <div :class="['contextMenu',showMenu?'open':'close']" :style="{left:`${positionX}px`,top:`${positionY}px`}">
+    <div id="contextMenu" tabindex='2' @blur='hideMenu' :class="['contextMenu',showMenu ? 'open' : 'close']" :style="{left:`${positionX}px`,top:`${positionY}px`}">
        
        <ul v-for="items in menu" v-if="items[0].label">
           <li v-for="item in items" v-if="item.submenu">
@@ -19,11 +19,12 @@
        <div v-else class="divider"></div>
        
     </div>
-  </div>
+ 
 </template>
 <script>
 // const { remote } = require('electron');
 // const win = remote.getCurrentWindow();
+import bus from '../../common/js/bus';
 export default {
   name: 'ContextMenu',
   data() {
@@ -31,19 +32,12 @@ export default {
       showMenu: false,
       positionX: 0,
       positionY: 0,
+      menu: [],
+
     };
   },
   props: {
-    menu: {
-      type: Array,
-      required: true,
-      default: [],
-    },
-    show: {
-      type: Boolean,
-      require: false,
-      default: false,
-    },
+
     unEditorAble: {
       type: Array,
       require: false,
@@ -53,6 +47,11 @@ export default {
       type: String,
       require: false,
       default: '',
+    },
+  },
+  computed: {
+    show() {
+      return this.menu.length;
     },
   },
   methods: {
@@ -69,32 +68,49 @@ export default {
     },
     hideMenu() {
       this.showMenu = false;
+      this.menu = [];
     },
+
   },
   watch: {
     show(value) {
       if (!value) { this.showMenu = false; }
     },
+
+  },
+  updated() {
+    document.getElementById('contextMenu').focus();
   },
   mounted() {
-    document.addEventListener('click', () => {
-      this.showMenu = false;
+    bus.$on('show', (e) => {
+      const { menu } = e;
+      this.menu = menu;
     });
+
     document.addEventListener('contextmenu', (e) => {
       e.target.click();
+      if (this.show) {
+        this.showMenu = true;
+        const { x, y } = e;
+        // fix:修复菜单在底部被隐藏的错误
+        const dHeight = document.body.clientHeight;
 
-      const time = this.showMenu ? 100 : 0;
-      const timer = setTimeout(() => {
-        if (this.show) {
-          this.showMenu = true;
-          const { x, y } = e;
-          this.positionX = x;
-          this.positionY = y;
-        }
-        clearTimeout(timer);
-      }, time);
+        const menuHeight = this.menu.reduce((total, value) => {
+          total += value.length; return total;
+        }, 0) * 25;
+        this.positionX = x + 20;
+
+        this.positionY = ((dHeight - y) < menuHeight ?
+          dHeight - menuHeight : y);
+      }
+      // const time = this.showMenu ? 100 : 0;
+      // const timer = setTimeout(() => {
+
+      //   clearTimeout(timer);
+      // }, time);
     });
   },
+
 };
 </script>
 <style lang="stylus" scoped>
@@ -135,6 +151,7 @@ export default {
             display none
     .mask
       position fixed
+    
       width 100%
       height 100%
       background-color rgba(0, 0, 0, 0.0)
