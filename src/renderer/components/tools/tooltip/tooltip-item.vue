@@ -6,7 +6,7 @@
         color #fff
         list-style none
         display flex
-        padding-left 35px
+        
         justify-content flex-start 
         align-items center
         height 30px 

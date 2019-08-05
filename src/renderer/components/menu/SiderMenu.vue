@@ -23,7 +23,7 @@ export default {
      text-align: center
      background-color: rgba(57,58,61,255)
      position: fixed
-     height: 100vh
+     height: 100%
      
     .icon
       margin-top: 1.25rem

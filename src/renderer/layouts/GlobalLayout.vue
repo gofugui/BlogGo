@@ -18,7 +18,6 @@
 <script>
 import SiderMenu from '../components/menu';
 import LeftSider from '../components/sider';
-import Setting from '../components/setting';
 import GlobalFooter from './GlobalFooter';
 import Drawer from '../components/tools/Drawer';
 import BlogModal from '../components/modal/BlogModal';
@@ -26,7 +25,7 @@ import AddBlog from '../components/modal/AddBlog';
 export default {
   name: 'GobalLayout',
   components: {
-    GlobalFooter, SiderMenu, LeftSider, Setting, Drawer, BlogModal, AddBlog,
+    GlobalFooter, SiderMenu, LeftSider, Drawer, BlogModal, AddBlog,
   },
   data() {
     return {

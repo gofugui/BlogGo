@@ -22,14 +22,15 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 900,
     useContentSize: true,
-    minWidth: 500,
+    minWidth: 1300,
     minHeight: 387,
     fullscreenWindowTitle: true,
     autoHideMenuBar: true,
     backgroundColor: '#272c37',
-    width: 830,
-    titleBarStyle: 'hiddenInset',
+    width: 1300,
+
     darkTheme: true,
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,

@@ -42,7 +42,6 @@ export default {
   $w = 140px
   .tooltip
     position relative
-    top -1px
     transition 0.5s all
   .tooltip-content
     transition 0.5s all
@@ -53,7 +52,7 @@ export default {
       display none
     position absolute
     left -($w/2) + 20px
-    top 60px
+    top 40px
     background-color rgba(52,49,51,1)
     min-width  $w
     border .5px rgba(93,90,92,1) solid

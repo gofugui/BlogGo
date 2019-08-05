@@ -56,16 +56,10 @@ let rendererConfig = {
       },
       {
         test: /\.css$/,
-        use: ['vue-style-loader', {loader:'css-loader',options:{
-          modules: true,
-        }}],
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
         use: ['vue-style-loader', 'css-loader'],
-        exclude: /src/,
+       
       },
+      
       {
         test: /\.styl(us)?$/,
         use: [
@@ -73,7 +67,7 @@ let rendererConfig = {
           'css-loader',
           'stylus-loader'
         ],
-        exclude: /src/,
+
       },
       {
         test: /\.html$/,

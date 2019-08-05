@@ -1,11 +1,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 import 'iview/dist/styles/iview.css';
-import { Icon, Button, Form, FormItem, Dropdown, DropdownMenu, DropdownItem, Input, Poptip } from 'iview';
-import Antd from 'ant-design-vue';
-import './dist/antd.css';
-
-
+import { Icon, Button, Layout, Header, Content, Dropdown, DropdownMenu, DropdownItem, Input, Poptip, Tag, Split, Message } from 'iview';
 import Device from '../tools/device';
 
 import App from './App';
@@ -19,15 +15,18 @@ Vue.config.productionTip = false;
 
 Vue.component('Button', Button);
 Vue.component('Icon', Icon);
-Vue.component('Form', Form);
-Vue.component('FormItem', FormItem);
+Vue.component('Layout', Layout);
+Vue.component('Content', Content);
+Vue.component('Header', Header);
 
 Vue.component('Dropdown', Dropdown);
 Vue.component('DropdownMenu', DropdownMenu);
 Vue.component('DropdownItem', DropdownItem);
 Vue.component('Poptip', Poptip);
 Vue.component('Input', Input);
-Vue.use(Antd);
+Vue.component('Tag', Tag);
+Vue.component('Split', Split);
+Vue.prototype.$Message = Message;
 
 Vue.prototype.Device = Device;
 
