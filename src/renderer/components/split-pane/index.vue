@@ -79,7 +79,8 @@
     methods: {
       onClick() {
         if (!this.hasMoved) {
-          this.percent = 50;
+          // this.percent = 50;
+          this.percent = this.maxPercent;
           // this.$emit('resize');
         }
       },
@@ -143,13 +144,12 @@
 }
 .vue-splitter-container-mask {
   z-index: 9999;
-
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
 }
 .splitter-pane {
-  transition: all 0.5s;
+  transition: all 0.3s;
 }
 </style>

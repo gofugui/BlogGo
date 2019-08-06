@@ -1,7 +1,7 @@
 <template>
    
     <!--<div :class="['mask', showMenu ? 'open' : 'close']" @click="hideMenu"></div>-->
-    <div id="contextMenu" tabindex='2' @blur='hideMenu' :class="['contextMenu',showMenu ? 'open' : 'close']" :style="{left:`${positionX}px`,top:`${positionY}px`}">
+    <div id="contextMenu" @click="hideMenu" tabindex='2' @blur='hideMenu' :class="['contextMenu',showMenu ? 'open' : 'close']" :style="{left:`${positionX}px`,top:`${positionY}px`}">
        
        <ul v-for="items in menu" v-if="items[0].label">
           <li v-for="item in items" v-if="item.submenu">
@@ -22,9 +22,9 @@
  
 </template>
 <script>
-// const { remote } = require('electron');
-// const win = remote.getCurrentWindow();
 import bus from '../../common/js/bus';
+const { remote } = require('electron');
+const win = remote.getCurrentWindow();
 export default {
   name: 'ContextMenu',
   data() {
@@ -33,22 +33,23 @@ export default {
       positionX: 0,
       positionY: 0,
       menu: [],
-
+      unEditorAble: [],
+      currentSelect: '',
     };
   },
-  props: {
+  // props: {
 
-    unEditorAble: {
-      type: Array,
-      require: false,
-      default: null,
-    },
-    currentSelect: {
-      type: String,
-      require: false,
-      default: '',
-    },
-  },
+  //   unEditorAble: {
+  //     type: Array,
+  //     require: false,
+  //     default: null,
+  //   },
+  //   currentSelect: {
+  //     type: String,
+  //     require: false,
+  //     default: '',
+  //   },
+  // },
   computed: {
     show() {
       return this.menu.length;
@@ -68,7 +69,6 @@ export default {
     },
     hideMenu() {
       this.showMenu = false;
-      this.menu = [];
     },
 
   },
@@ -83,12 +83,14 @@ export default {
   },
   mounted() {
     bus.$on('show', (e) => {
-      const { menu } = e;
+      const { menu, unEditorAble, currentSelect } = e;
       this.menu = menu;
+      this.unEditorAble = unEditorAble;
+      this.currentSelect = currentSelect;
     });
 
     document.addEventListener('contextmenu', (e) => {
-      e.target.click();
+      win.focus();
       if (this.show) {
         this.showMenu = true;
         const { x, y } = e;
@@ -103,11 +105,12 @@ export default {
         this.positionY = ((dHeight - y) < menuHeight ?
           dHeight - menuHeight : y);
       }
-      // const time = this.showMenu ? 100 : 0;
+      // const time = this.showMenu ? 10 : 0;
       // const timer = setTimeout(() => {
 
       //   clearTimeout(timer);
       // }, time);
+      e.target.click();
     });
   },
 
@@ -115,6 +118,7 @@ export default {
 </script>
 <style lang="stylus" scoped>
     .contextMenu
+        outline 0
         position fixed
         padding 5px 0px
         width 160px

@@ -4,10 +4,10 @@
        <top-menu @change="onMenuEvent"/>
         <split-pane style="top:40px" paneLColor='rgba(46,49,58,.6)' :min-percent='15' :showResize='false' :default-percent='innerDrawerPercent' :max-percent='innerDrawerPercent' split="vertical">
             <template slot="paneL">
-                <drawer-sider/>
+              <drawer-sider/>
             </template>
             <template slot="paneR">
-                <split-pane :min-percent='20' :default-percent='28' :max-percent='28' split="vertical">
+                <split-pane :min-percent='20' :default-percent='28' :max-percent='28'  split="vertical">
                     <template slot="paneL">
                         <left-sider/>
                     </template>

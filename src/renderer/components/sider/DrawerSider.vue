@@ -1,6 +1,6 @@
 <template>
     <div @blur="divOnBlur"  @focus="divOnFocus" tabindex="0" class="drawer">
-        <context-menu :menu="menu" :show="show" :unEditorAble="unEditorAble" :currentSelect="currentSelect()"/>
+       <!-- <context-menu :menu="menu" :show="show" :unEditorAble="unEditorAble" :currentSelect="currentSelect()"/>-->
         <ul class="drawerlist">
             <li @click.prevent="handleClick(index)" v-bind:class="{defaultStyle:sel === -1 && index === 0,select:sel===index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in tagList" :key="index">
               <input id="floderName" @keyup.enter="onblur" @focus="onfocus(index)" @blur="onblur" v-if="item.name === currentEditorName" :value="item.name"/>
@@ -11,36 +11,46 @@
 </template>
 <script>
 // TODO: 获取当前打开的文件夹，如果没有选择备忘录作为默认，并且设置背景色
-import ContextMenu from '../menu/ContextMenu';
+import bus from '../../common/js/bus';
 export default {
   name: 'DrawerSider',
   data() {
     return {
-
-      menu: [
-        [{ label: '给文件夹重新命名...', disable: true, onPress: this.reNameFolder },
-          { label: '删除文件夹...', disable: true, onPress: this.deleteFolder }],
-        [{
-          type: 'separator',
-        }], [{ label: '新建文件夹...', onPress: this.addFolder }]],
-      sel: -1,
+      sel: 0,
       currentEditorName: '',
-      unEditorAble: ['备忘录', '最近删除'],
-
       isFocus: false,
       show: false,
     };
   },
-  components: { ContextMenu },
   computed: {
     tagList() {
       return this.$store.state.app.tags;
     },
+    currentSelect() {
+      const value = this.tagList.find((item, index) => this.sel === index);
+      if (value) {
+        return value.name;
+      }
+      return null;
+    },
   },
   methods: {
+    emitMenu() {
+      bus.$emit('show', {
+        menu: [
+          [{ label: '给文件夹重新命名...', disable: true, onPress: this.reNameFolder },
+            { label: '删除文件夹...', disable: true, onPress: this.deleteFolder }],
+          [{
+            type: 'separator',
+          }], [{ label: '新建文件夹...', onPress: this.addFolder }]],
+        unEditorAble: ['备忘录', '最近删除'],
+        currentSelect: this.currentSelect,
+      });
+    },
     divOnFocus() {
       this.isFocus = true;
       this.show = true;
+      this.emitMenu();
     },
     divOnBlur() {
       this.isFocus = false;
@@ -66,7 +76,9 @@ export default {
 
     handleClick(index) {
       this.sel = index;
+      this.emitMenu();
     },
+
     addFolder() {
       // 获取当前文件序号
       const arr = [];
@@ -92,9 +104,8 @@ export default {
       const value = this.tagList.find((item, index) => this.sel === index);
       const index = this.tagList.findIndex((item, index) => this.sel === index);
       const { id } = value;
-
-      this.$store.commit('app/deleteTags', id);
       this.sel = index - 1;
+      this.$store.commit('app/deleteTags', id);
     },
     reNameFolder() {
       const value = this.tagList.find((item, index) => this.sel === index);
@@ -102,13 +113,7 @@ export default {
       const { name } = value;
       this.currentEditorName = name;
     },
-    currentSelect() {
-      const value = this.tagList.find((item, index) => this.sel === index);
-      if (value) {
-        return value.name;
-      }
-      return null;
-    },
+
   },
   updated() {
     const floderName = document.getElementById('floderName');
@@ -127,6 +132,7 @@ export default {
         position relative
         width 100%
         min-width 200px
+        overflow overlay
         outline 0
     .drawerlist
         list-style none

@@ -30,12 +30,7 @@ export default {
     };
   },
   methods: {
-    onItemClick(index) {
-      this.isSel = index;
-    },
-    divOnFocus() {
-      this.isFocus = true;
-      this.show = true;
+    emitMenu() {
       bus.$emit('show', {
         menu: [
           [{ label: '删除', onPress: () => null }],
@@ -52,6 +47,15 @@ export default {
           [{ label: '新建备忘录', onPress: () => null }],
         ],
       });
+    },
+    onItemClick(index) {
+      this.isSel = index;
+      this.emitMenu();
+    },
+    divOnFocus() {
+      this.isFocus = true;
+      this.show = true;
+      this.emitMenu();
     },
     divOnBlur() {
       this.isFocus = false;
@@ -70,6 +74,11 @@ export default {
     .leftSider
       font  bold 14px/20px arial,sans-serif;
       outline 0
+      height 100%
+      width 100%
+      &:hover
+        overflow overlay
+      
     .defaultStyle
       background rgba(52,53,55,1)
     .select
