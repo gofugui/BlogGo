@@ -1,9 +1,11 @@
 import Vue from 'vue';
 import axios from 'axios';
 import 'iview/dist/styles/iview.css';
-import { Icon, Button, Layout, Header, Content, Dropdown, DropdownMenu, DropdownItem, Input, Poptip, Tag, Split, Message } from 'iview';
+import {
+  Icon, Button, Layout, Header, Modal, Dropdown, DropdownMenu, DropdownItem, Badge,
+  Poptip, Tag, Split, Message,
+} from 'iview';
 import Device from '../tools/device';
-
 import App from './App';
 import router from './router';
 import store from './store';
@@ -16,14 +18,14 @@ Vue.config.productionTip = false;
 Vue.component('Button', Button);
 Vue.component('Icon', Icon);
 Vue.component('Layout', Layout);
-Vue.component('Content', Content);
+Vue.component('Modal', Modal);
 Vue.component('Header', Header);
 
 Vue.component('Dropdown', Dropdown);
 Vue.component('DropdownMenu', DropdownMenu);
 Vue.component('DropdownItem', DropdownItem);
 Vue.component('Poptip', Poptip);
-Vue.component('Input', Input);
+Vue.component('Badge', Badge);
 Vue.component('Tag', Tag);
 Vue.component('Split', Split);
 Vue.prototype.$Message = Message;

@@ -1,6 +1,5 @@
+
 <template>
-   
-    <!--<div :class="['mask', showMenu ? 'open' : 'close']" @click="hideMenu"></div>-->
     <div id="contextMenu" @click="hideMenu" tabindex='2' @blur='hideMenu' :class="['contextMenu',showMenu ? 'open' : 'close']" :style="{left:`${positionX}px`,top:`${positionY}px`}">
        
        <ul v-for="items in menu" v-if="items[0].label">
@@ -38,7 +37,6 @@ export default {
     };
   },
   // props: {
-
   //   unEditorAble: {
   //     type: Array,
   //     require: false,
@@ -70,13 +68,11 @@ export default {
     hideMenu() {
       this.showMenu = false;
     },
-
   },
   watch: {
     show(value) {
       if (!value) { this.showMenu = false; }
     },
-
   },
   updated() {
     document.getElementById('contextMenu').focus();
@@ -88,7 +84,6 @@ export default {
       this.unEditorAble = unEditorAble;
       this.currentSelect = currentSelect;
     });
-
     document.addEventListener('contextmenu', (e) => {
       win.focus();
       if (this.show) {
@@ -96,24 +91,20 @@ export default {
         const { x, y } = e;
         // fix:修复菜单在底部被隐藏的错误
         const dHeight = document.body.clientHeight;
-
         const menuHeight = this.menu.reduce((total, value) => {
           total += value.length; return total;
         }, 0) * 25;
         this.positionX = x + 20;
-
         this.positionY = ((dHeight - y) < menuHeight ?
           dHeight - menuHeight : y);
       }
       // const time = this.showMenu ? 10 : 0;
       // const timer = setTimeout(() => {
-
       //   clearTimeout(timer);
       // }, time);
       e.target.click();
     });
   },
-
 };
 </script>
 <style lang="stylus" scoped>
@@ -145,6 +136,7 @@ export default {
            
                 
             li.disable 
+                pointer-events none
                 cursor default
                 background rgba(52,50,55,.5)
                 color rgba(121,118,123,1)

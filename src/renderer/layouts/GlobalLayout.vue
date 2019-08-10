@@ -1,72 +1,56 @@
 <template>
-    <a-layout :style="{height: '100vh'}">
-        
-          
-         <a-layout>
-         
-          
-          <a-layout-content>
-              <slot></slot>
-          </a-layout-content>  
-        
-        </a-layout>
-      
-       
-       
-    </a-layout>
+
+<div id="app">
+        <top-menu @change="onMenuEvent"/>
+        <split-pane style="top:40px;height:calc(100% - 40px)" paneLColor='rgba(46,49,58,.6)' :min-percent='15' 
+        :showResize='false' :default-percent='innerDrawerPercent' 
+        :max-percent='innerDrawerPercent' split="vertical">
+            <template slot="paneL">
+                <drawer-sider/>
+            </template>
+            <template slot="paneR">
+               <slot></slot>
+            </template>
+        </split-pane>
+</div>
+   
 </template>
 <script>
-import SiderMenu from '../components/menu';
-import LeftSider from '../components/sider';
+
 import GlobalFooter from './GlobalFooter';
-import Drawer from '../components/tools/Drawer';
-import BlogModal from '../components/modal/BlogModal';
-import AddBlog from '../components/modal/AddBlog';
+import TopMenu from '../components/menu/TopMenu';
+import DrawerSider from '../components/sider/DrawerSider';
+import SplitPane from '../components/split-pane';
 export default {
   name: 'GobalLayout',
   components: {
-    GlobalFooter, SiderMenu, LeftSider, Drawer, BlogModal, AddBlog,
+    GlobalFooter, TopMenu, DrawerSider, SplitPane,
   },
   data() {
     return {
-      visible: true,
-      showSetting: false,
-      showBlogModal: false,
+      innerDrawerPercent: 0,
     };
   },
   mounted() {
 
   },
   methods: {
-    switchClick() {
-      this.visible = !this.visible;
+    onMenuEvent(show) {
+      this.innerDrawerPercent = show ? 17 : 0;
     },
-    showModal() {
-      this.showBlogModal = !this.showBlogModal;
-    },
-    onSettingDrawerChange(val) {
-      this.showSetting = val;
-    },
-    onBlogModalChange(val) {
-      this.showBlogModal = val;
-    },
-
   },
 };
 </script>
 <style lang="stylus" scoped>
-    .btn
-      position: absolute
-      bottom: 20px
-      left: 20px
-      z-index:1500
-    .leftSider
-        overflow: auto
-        height: 100vh
-    .rightSider
-        overflow: auto
-        height: 100vh
-        position: absolute
-    
-   
+   #app
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        font-size: 14px;
+        line-height: 1.5em;
+        background-color rgba(62,63,65,1)
+        color #fff
+        width 100vw
+        height 100vh
+        padding 0
+        margin 0
+        overflow hidden
 </style>

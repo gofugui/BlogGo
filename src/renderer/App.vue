@@ -1,51 +1,26 @@
 <template>
     <div id="app">
-       <context-menu/>
-       <top-menu @change="onMenuEvent"/>
-        <split-pane style="top:40px" paneLColor='rgba(46,49,58,.6)' :min-percent='15' :showResize='false' :default-percent='innerDrawerPercent' :max-percent='innerDrawerPercent' split="vertical">
-            <template slot="paneL">
-              <drawer-sider/>
-            </template>
-            <template slot="paneR">
-                <split-pane :min-percent='20' :default-percent='28' :max-percent='28'  split="vertical">
-                    <template slot="paneL">
-                        <left-sider/>
-                    </template>
-                    <template slot="paneR">
-                        <editor />
-                    </template>
-                </split-pane>
-            </template>
-        </split-pane>
-        
+        <context-menu/>
+       
+        <router-layout/>
     </div>
 </template>
 <script>
-import SplitPane from './components/split-pane';
-import TopMenu from './components/menu/TopMenu';
+
 import ContextMenu from './components/menu/ContextMenu';
-import LeftSider from './components/sider';
-import DrawerSider from './components/sider/DrawerSider';
-import Editor from './pages/editor';
+
+import RouterLayout from './layouts/RouterLayout';
 export default {
-  data() {
-    return {
-      innerDrawerPercent: 0,
-    };
-  },
+
   components: {
-    SplitPane, TopMenu, LeftSider, DrawerSider, Editor, ContextMenu,
+    ContextMenu, RouterLayout,
   },
-  methods: {
-    onMenuEvent(show) {
-      this.innerDrawerPercent = show ? 17 : 0;
-    },
-  },
+
 };
 </script>
 <style lang="stylus">
     ::-webkit-scrollbar
-        width 15px
+        width 10px
      
     ::-webkit-scrollbar-thumb
         border-radius 10px

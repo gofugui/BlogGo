@@ -1,10 +1,19 @@
 <template>
     <div @blur="divOnBlur"  @focus="divOnFocus" tabindex="0" class="drawer">
-       <!-- <context-menu :menu="menu" :show="show" :unEditorAble="unEditorAble" :currentSelect="currentSelect()"/>-->
+        <Modal
+        v-model="modal1"
+        :title="`您确定要删除“${delFolderName}”吗？`"
+        @on-ok="ok"
+        @on-cancel="cancel">
+        <p>所有备忘录和子文件夹都将被删除</p>
+    </Modal>
         <ul class="drawerlist">
-            <li @click.prevent="handleClick(index)" v-bind:class="{defaultStyle:sel === -1 && index === 0,select:sel===index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in tagList" :key="index">
+            <li @click.prevent="handleClick(index)" 
+              v-bind:class="{defaultStyle:sel === -1 && index === 0,select:sel===index,unfocus:sel === index&&(!isFocus)}"
+              v-for="(item,index) in tagList" :key="index">
               <input id="floderName" @keyup.enter="onblur" @focus="onfocus(index)" @blur="onblur" v-if="item.name === currentEditorName" :value="item.name"/>
-              <span v-else>{{item.name}}</span>
+              <div class="folderName" v-else>{{item.name}}</div>
+              <Badge :count="item.count" :type="badgeType(item.count,item.name)"></Badge>
             </li>
         </ul>
     </div>
@@ -16,15 +25,19 @@ export default {
   name: 'DrawerSider',
   data() {
     return {
-      sel: 0,
+      sel: -1,
       currentEditorName: '',
       isFocus: false,
-      show: false,
+      modal1: false,
+      delFolderName: '',
     };
   },
   computed: {
     tagList() {
-      return this.$store.state.app.tags;
+      return this.$store.getters['app/folderList'];
+    },
+    defaultSelectIndex() {
+      return this.$store.getters['app/currentSelectFolder'];
     },
     currentSelect() {
       const value = this.tagList.find((item, index) => this.sel === index);
@@ -49,12 +62,11 @@ export default {
     },
     divOnFocus() {
       this.isFocus = true;
-      this.show = true;
+
       this.emitMenu();
     },
     divOnBlur() {
       this.isFocus = false;
-      this.show = false;
     },
     onblur(e) {
       const newName = e.target.value.trim();
@@ -73,12 +85,15 @@ export default {
     onfocus(index) {
       this.sel = index;
     },
-
-    handleClick(index) {
-      this.sel = index;
+    // 选取当前的选择项
+    handleClick(value) {
+      this.sel = value;
+      const item = this.tagList.find((item, index) => this.sel === index);
+      const { id } = item;
+      this.$store.commit('app/currentSelectFolder', id);
       this.emitMenu();
     },
-
+    // 添加备忘录
     addFolder() {
       // 获取当前文件序号
       const arr = [];
@@ -100,12 +115,21 @@ export default {
       this.currentEditorName = name;
       this.$store.commit('app/addTags', { name });
     },
-    deleteFolder() {
+    ok() {
       const value = this.tagList.find((item, index) => this.sel === index);
       const index = this.tagList.findIndex((item, index) => this.sel === index);
       const { id } = value;
       this.sel = index - 1;
       this.$store.commit('app/deleteTags', id);
+    },
+    cancel() {
+
+    },
+    deleteFolder() {
+      const value = this.tagList.find((item, index) => this.sel === index);
+      const { name } = value;
+      this.delFolderName = name;
+      this.modal1 = true;
     },
     reNameFolder() {
       const value = this.tagList.find((item, index) => this.sel === index);
@@ -113,13 +137,30 @@ export default {
       const { name } = value;
       this.currentEditorName = name;
     },
-
+    badgeType(count, name) {
+      if (name === '最近删除') {
+        return 'error';
+      }
+      switch (count) {
+        case count < 10:
+          return 'info';
+        case count < 50:
+          return 'normal';
+        case count < 100:
+          return 'success';
+        default:
+          return 'primary';
+      }
+    },
   },
   updated() {
     const floderName = document.getElementById('floderName');
     if (floderName) {
       floderName.select();
     }
+  },
+  mounted() {
+    this.sel = this.defaultSelectIndex;
   },
 
 };
@@ -129,16 +170,20 @@ export default {
         font bold 14px/20px arial,sans-serif;
         padding 20px 0px 20px 0px
         height 100%
-        position relative
         width 100%
-        min-width 200px
-        overflow overlay
+        position absolute
         outline 0
+        overflow hidden
+        
+        &:hover
+         overflow overlay
     .drawerlist
         list-style none
         li
             cursor pointer
             padding 5px 20px 
+            display flex
+            justify-content space-between
             input
               width 100%
               color #fff
@@ -147,6 +192,10 @@ export default {
               outline-color rgba(67,112,153,1)
               border 0
               border-radius 5px
+            .folderName
+              overflow hidden
+              white-space nowrap
+              text-overflow ellipsis
     .defaultStyle
         background rgba(77,77,83,1)
     .select

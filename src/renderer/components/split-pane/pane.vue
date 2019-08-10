@@ -23,19 +23,20 @@
 <style scoped>
  
 .splitter-pane.vertical.splitter-paneL {
-  overflow: hidden;
+ 
   position: absolute;
   left: 0px;
   height: 100%;
   padding-right: 1px;
+  
   box-shadow: 2px 0 8px rgba(0,0,0,.15)
 }
 
 .splitter-pane.vertical.splitter-paneR {
-  overflow: hidden;
+  
   position: absolute;
   right: 0px;
-  height: 100%;
+  height:100% ;
   padding-left: 1px;
   box-shadow: 2px 0 8px rgba(0,0,0,.15)
 }

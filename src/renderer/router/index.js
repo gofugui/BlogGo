@@ -8,19 +8,19 @@ export default new Router({
     {
       path: '/',
       name: 'router-view',
-      component: require('@/layouts/RouterLayout').default,
-      redirect: '/router-view/editor',
+      component: require('@/pages/postlist').default,
+
       children: [
         {
-          path: '/router-view/editor',
+          path: '/router-view/editor/:id/:time',
           name: 'editor',
           component: require('@/pages/editor').default,
+        }, {
+          path: '/router-view/setting',
+          name: 'setting',
+          component: require('@/pages/setting').default,
         },
-        {
-          path: '/router-view/upload',
-          name: 'upload',
-          component: require('@/pages/upload').default,
-        },
+
       ],
     },
     {

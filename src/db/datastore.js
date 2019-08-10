@@ -33,7 +33,7 @@ if (!db.get('tags').value().length) {
   const uuidV4 = require('uuid/v4');
 
   db.get('tags')
-    .push({ id: uuidV4(), name: '备忘录' }, { id: uuidV4(), name: '最近删除' })
+    .push({ id: uuidV4(), name: '备忘录' }, { id: uuidV4(), name: '最近删除', EmptyNotShow: true })
     .write();
 }
 export default db; // 暴露出去

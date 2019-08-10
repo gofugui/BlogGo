@@ -138,7 +138,7 @@
 .vue-splitter-container {
   
   width: 100%;
-  height: calc(100% - 20px);
+  height: 100%;
   position: relative;
   
 }
