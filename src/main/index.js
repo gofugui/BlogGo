@@ -29,7 +29,7 @@ function createWindow() {
     height: 900,
     minHeight: 387,
     darkTheme: true,
-    titleBarStyle: 'hiddenInset',
+
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,

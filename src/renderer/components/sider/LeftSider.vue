@@ -34,7 +34,10 @@ export default {
       const { id, time } = this.currentSelPostId();
       this.$router.push(`/router-view/editor/${id}/${time}`);
     },
-    formatTime(timestamp) {
+    formatTime(timestamp, type) {
+      if (type) {
+        return moment(timestamp).format(type);
+      }
       return moment(timestamp).calendar(); // moment(timestamp).startOf('hour').fromNow();//
     },
     emitMenu() {
@@ -92,7 +95,7 @@ export default {
       const post = this.currentFolderPosts.find((item, index) => index === this.sel);
       if (post) {
         const { id, timestamp } = post;
-        return { id, time: this.formatTime(timestamp) };
+        return { id, time: this.formatTime(timestamp, 'LLL') };
       }
       return { id: '404', time: 0 };
     },
@@ -109,7 +112,10 @@ export default {
     },
     deletePost() {
       const value = this.currentFolderPosts.find((item, index) => index === this.sel);
-
+      if (!value) {
+        this.$Message.info('没有待删除项');
+        return;
+      }
       this.$store.commit('app/deletePost', value);
       if (this.sel) {
         this.sel = this.sel - 1 > -1 ? this.sel - 1 : 0;
@@ -134,6 +140,9 @@ export default {
     this.routeTo();
     bus.$on('addPost', () => {
       this.addBlog();
+    });
+    bus.$on('deletePost', () => {
+      this.deletePost();
     });
   },
   computed: {

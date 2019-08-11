@@ -9,8 +9,8 @@ import Device from '../tools/device';
 import App from './App';
 import router from './router';
 import store from './store';
-import './assets/font/css/fontello.css';
-
+import './assets/font1/css/columns.css';
+import './assets/font2/iconfont.css';
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
 Vue.http = Vue.prototype.$http = axios;
 Vue.config.productionTip = false;

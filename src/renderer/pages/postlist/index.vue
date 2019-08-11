@@ -1,5 +1,5 @@
 <template>
-    <split-pane :min-percent='20' :default-percent='28' :max-percent='28'  split="vertical">
+    <split-pane :min-percent='20' :default-percent="leftSiderPercent" :max-percent='28'  split="vertical">
         <template slot="paneL">
             <left-sider/>
         </template>
@@ -15,7 +15,18 @@
 <script>
 import SplitPane from '../../components/split-pane';
 import LeftSider from '../../components/sider/LeftSider';
+import Bus from '../../common/js/bus';
 export default {
+  data() {
+    return {
+      leftSiderPercent: 28,
+    };
+  },
   components: { SplitPane, LeftSider },
+  mounted() {
+    Bus.$on('onLeftSider', (show) => {
+      this.leftSiderPercent = show ? 28 : 0;
+    });
+  },
 };
 </script>

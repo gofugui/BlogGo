@@ -33,6 +33,9 @@ export default {
     };
   },
   computed: {
+    currentFolderPosts() {
+      return this.$store.getters['app/currentFolderPosts'];
+    },
     tagList() {
       return this.$store.getters['app/folderList'];
     },
@@ -126,6 +129,11 @@ export default {
 
     },
     deleteFolder() {
+      // 如果当前的文件夹下面没有文章，立即删除
+      if (!this.currentFolderPosts.length) {
+        this.ok();
+        return;
+      }
       const value = this.tagList.find((item, index) => this.sel === index);
       const { name } = value;
       this.delFolderName = name;

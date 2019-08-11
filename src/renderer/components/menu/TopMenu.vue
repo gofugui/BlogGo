@@ -2,12 +2,12 @@
    <div class="menu" :style="{paddingLeft:pl,paddingRight:'10px'}">
       
     <div class="item">
-      <button @click="onShowFolder" >文件</button>
-      <button>附件</button>
-      <button>删除</button>
-      <button>新建</button>
-      
-      
+      <button :disabled="!showLeftSider" @click="onShowFolder"> <span :class="['icon','iconfont','menuItem',{'disabled':!showLeftSider}]">&#xe6b5;</span></button>
+      <button @click="onLeftSider"><span style="font-size: 18px" class="icon iconfont">&#xe796;</span></button>
+      <button class="demo-icon icon-th-large-outline"/>
+      <button @click="deletePost" :disabled="!showLeftSider"><span :class="['icon','iconfont','menuItem',{'disabled':!showLeftSider}]">&#xe790;</span></button>
+      <button @click="addPost" :disabled="!showLeftSider"><span :class="['icon','iconfont','menuItem',{'disabled':!showLeftSider}]">&#xe78f;</span></button>
+  
     </div>
     <!-- <div class="item">
       <button>锁定</button>
@@ -46,11 +46,10 @@ export default {
   components: { ToolTip, ToolTipItem, SearchInput },
   data() {
     return {
-      pl: this.Device.isWindows ? '10px' : '80px',
-      searchText: '',
-      formatClick: false,
+      pl: '10px', // this.Device.isWindows ? '10px' : '80px',
       showFolder: false,
       menuArr: [['文件', '附件', '删除']],
+      showLeftSider: true,
     };
   },
   methods: {
@@ -58,26 +57,18 @@ export default {
       this.showFolder = !this.showFolder;
       this.$emit('change', this.showFolder);
     },
-    headerTitleOne() {
-      Bus.$emit('headerTitleOne', 'h2');
+    onLeftSider() {
+      this.showLeftSider = !this.showLeftSider;
+      Bus.$emit('onLeftSider', this.showLeftSider);
+      if (this.showFolder) {
+        this.onShowFolder();
+      }
     },
-    headerTitleTwo() {
-      Bus.$emit('headerTitleTwo', 'h3');
+    addPost() {
+      Bus.$emit('addPost');
     },
-    normalText() {
-      Bus.$emit('normalText', false);
-    },
-    avgWidth() {
-      Bus.$emit('avgWidth', true);
-    },
-    listOrdered() {
-      Bus.$emit('listOrdered', 'ordered');
-    },
-    listBullet() {
-      Bus.$emit('listBullet', 'bullet');
-    },
-    doList() {
-      Bus.$emit('doList', 'check');
+    deletePost() {
+      Bus.$emit('deletePost');
     },
 
   },
@@ -113,15 +104,21 @@ export default {
       flex-direction row 
       align-items center
       button
+        display flex
+        justify-content center
+        align-items center
         background rgba(104,104,107,1)
-        width 48px
-        height 23px
+        width 40px
+        height 24px
         margin 3px
         border-radius 3px
         color #fff
         outline 0
         border 0px
         box-shadow 0 0 5px 2px rgba(0,0,0,0.1)
-      
-
+  .menuItem
+    font-size 22px
+    color rgba(234,235,235,1)
+  .disabled
+    color rgba(144,145,147,1)
 </style>

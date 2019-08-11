@@ -1,6 +1,6 @@
 <template>
   <div id="editLayout" @click="onNewBlog">
-      <div v-show="time" class="label"><label>{{time}}</label></div>
+      <div v-show="time !== '0'" class="label"><label>{{time}}</label></div>
       <div v-show="id" id="editor"/>
   </div>
 </template>
