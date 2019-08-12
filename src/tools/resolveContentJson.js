@@ -54,6 +54,17 @@ const resolveTitle = ({ blocks }) => {
   }
   return '';
 };
+// 提取每一篇文章的内容
+const resolveMatchContent = ({ blocks }, searchText) => {
+  if (blocks.length) {
+    const tempBlocks = blocks.concat([]);
+    const content = tempBlocks.reduce((total, item) => { total += resolveData(item); return total; }, '');
+    if (content.indexOf(searchText) > -1) {
+      return true;
+    }
+  }
+  return false;
+};
 const resolveContent = ({ blocks }) => {
   // eslint-disable-next-line no-console
 
@@ -64,5 +75,5 @@ const resolveContent = ({ blocks }) => {
   }
   return '';
 };
-exports.default = { resolveTitle, resolveContent };
+exports.default = { resolveTitle, resolveContent, resolveMatchContent };
 

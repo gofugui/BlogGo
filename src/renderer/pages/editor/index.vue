@@ -204,7 +204,7 @@ export default {
   },
   computed: {
     post() {
-      return this.$store.getters['app/currentFolderPosts'];
+      return this.$store.state.app.posts;
     },
     trashId() {
       return this.$store.getters['app/trashId'];

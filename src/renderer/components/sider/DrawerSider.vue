@@ -94,6 +94,7 @@ export default {
       const item = this.tagList.find((item, index) => this.sel === index);
       const { id } = item;
       this.$store.commit('app/currentSelectFolder', id);
+      bus.$emit('clearSearchText');
       this.emitMenu();
     },
     // 添加备忘录

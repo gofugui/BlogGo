@@ -15,7 +15,7 @@ function sortByName(arr) {
 const folderSelectId = db.select('tags')[0].id;
 const defaultState = {
   tags: sortByName(db.select('tags')),
-  posts: db.select('posts', 'tagId', folderSelectId),
+  posts: db.select('posts'),
   folderSelectId,
 };
 export default{

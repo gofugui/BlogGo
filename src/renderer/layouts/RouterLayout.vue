@@ -2,7 +2,9 @@
     <global-layout>
         
         <transition name="page-toggle">
-            <router-view />
+            <keep-alive>
+                <router-view />
+            </keep-alive>
         </transition>
     </global-layout>
 </template>

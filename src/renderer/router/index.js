@@ -6,7 +6,7 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/:searchText?',
       name: 'router-view',
       component: require('@/pages/postlist').default,
 

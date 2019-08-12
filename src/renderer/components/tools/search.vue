@@ -6,6 +6,7 @@
     </div>
 </template>
 <script>
+import bus from '../../common/js/bus';
 export default {
   name: 'SearchInput',
   data() {
@@ -27,6 +28,14 @@ export default {
         searchInput.select();
       }
     },
+  },
+  updated() {
+    this.$router.push(`/${this.text}`);
+  },
+  mounted() {
+    bus.$on('clearSearchText', () => {
+      this.clear();
+    });
   },
 
 };
