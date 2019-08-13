@@ -156,8 +156,8 @@ export default {
     },
     currentSelPostId() {
       const postsArr = this.searchText ? this.searchPosts : this.currentFolderPosts;
-
-      const post = postsArr.find((item, index) => index === this.sel);
+      const currentIndex = this.sel || 0;
+      const post = postsArr.find((item, index) => index === currentIndex);
       if (post) {
         const { id, timestamp } = post;
         return { id, time: this.formatTime(timestamp, 'LLL') };
