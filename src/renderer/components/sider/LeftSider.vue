@@ -1,9 +1,9 @@
 <template>
   <div @blur="divOnBlur" @focus="divOnFocus" tabindex="1" class="leftSider">
       
-      <div  class="item" @click.prevent='onItemClick(index)' v-bind:class="{select:sel === index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in this.factory()" :key="item.id">
+      <div  class="item" @dblclick.prevent='onItemDoubleClick(index)' @click.prevent='onItemClick(index)' v-bind:class="{select:sel === index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in this.factory()" :key="item.id">
         <div class="itemContent">
-          <div v-html="getTitle(item)"></div>
+          <div class="contentTitle"><Tag v-show="item.fixed" color="orange">置顶</Tag><span v-html="getTitle(item)"></span></div>
           <div class="describer">
             <span style="color:rgba(224,224,224,1);font-size:13px">{{formatTime(item.timestamp)}}</span>
             <span style="color:rgba(174,174,174,1);font-size:13px;" v-html="getContent(item)"></span>
@@ -18,6 +18,7 @@
 <script>
 import momentLocale from 'moment/locale/zh-cn';
 import bus from '../../common/js/bus';
+
 const { resolveTitle, resolveContent, resolveMatchContent } = require('../../../tools/resolveContentJson').default;
 
 const moment = require('moment');
@@ -66,7 +67,7 @@ export default {
         }
         return this.searchPosts;
       }
-      this.sel = this.storeSel;
+      this.sel = this.storeSel ? this.storeSel : this.sel;
       this.storeSel = '';
       // 当页面恢复常规状态时，状态为1可进行各种操作
       this.type = 1;
@@ -97,6 +98,9 @@ export default {
       return moment(timestamp).calendar(); // moment(timestamp).startOf('hour').fromNow();//
     },
     emitMenu() {
+      const value = this.currentFolderPosts.find((item, _index) => this.sel === _index);
+      const fixLabel = value.fixed ? '取消置顶备忘录' : '置顶备忘录';
+      // const fixLabel = '置顶备忘录';
       if (this.type === 1) {
         if (this.folderSelectId === this.trashId) {
           bus.$emit('show', {
@@ -118,7 +122,7 @@ export default {
             menu: [
               [{ label: '删除', onPress: this.deletePost }],
               [{ type: 'separator' }],
-              [{ label: '置顶备忘录', onPress: () => null },
+              [{ label: fixLabel, onPress: this.fixPost },
                 { label: '锁定备忘录', onPress: () => null }],
               [{
                 type: 'separator',
@@ -146,6 +150,11 @@ export default {
       this.routeTo();
       this.emitMenu();
       this.isFocus = true;
+    },
+    onItemDoubleClick(index) {
+      const { dialog } = require('electron').remote;
+      this.sel = index;
+      this.routeTo();
     },
     divOnFocus() {
       //
@@ -188,6 +197,13 @@ export default {
       }
       this.routeTo();
     },
+    // 置顶备忘录或取消置顶
+    fixPost() {
+      const value = this.currentFolderPosts.find((item, index) => this.sel === index);
+      const { id } = value;
+      this.$store.commit('app/fixedPost', { id, fixed: !value.fixed });
+      this.sel = this.currentFolderPosts.findIndex(item => id === item.id);
+    },
     subStrMatchText(text, num = 10) {
       if (this.searchText) {
         const index = text.indexOf(this.searchText);
@@ -229,8 +245,13 @@ export default {
   computed: {
     isActive: vm => vm.$store.state.app.isActive,
     currentFolderPosts() {
-      return this.$store.getters['app/currentFolderPosts'];
+      const posts = this.$store.getters['app/currentFolderPosts'];
+      const fixedPosts = posts.filter(item => item.fixed);
+      const noFixedPosts = posts.filter(item => !item.fixed);
+
+      return [...fixedPosts, ...noFixedPosts];
     },
+
     folderSelectId() {
       return this.$store.state.app.folderSelectId;
     },
@@ -291,6 +312,10 @@ export default {
         overflow hidden
         white-space nowrap
         text-overflow ellipsis
+        .contentTitle
+          text-overflow ellipsis
+          overflow hidden
+          white-space nowrap
         .describer
           color rgba(174,174,174,1)
           text-overflow ellipsis

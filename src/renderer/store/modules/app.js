@@ -83,7 +83,7 @@ export default{
       if (tagId === trashTagId) {
         db.deleteById('posts', id);
       } else {
-        const isDelete = { tagId: trashTagId, oldTagID: tagId };
+        const isDelete = { tagId: trashTagId, oldTagID: tagId, fixed: false };
         db.update('posts', id, isDelete);
         // 更新数量
         const count = db.selectCount('posts', 'tagId', trashTagId);
@@ -102,6 +102,12 @@ export default{
       const { time, id } = post;
       const updateContent = { timestamp: time, content: post };
       db.update('posts', id, updateContent);
+      const posts = db.select('posts');
+      state.posts = posts;
+    },
+    fixedPost(state, { id, fixed }) {
+      const updateToFixed = { fixed };
+      db.update('posts', id, updateToFixed);
       const posts = db.select('posts');
       state.posts = posts;
     },
