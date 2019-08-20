@@ -12,7 +12,7 @@ export default new Router({
 
       children: [
         {
-          path: '/router-view/editor/:id/:time',
+          path: '/router-view/editor/:id/:time/:isLock',
           name: 'editor',
           component: require('@/pages/editor').default,
         }, {

@@ -1,5 +1,6 @@
-import { app, BrowserWindow, Menu,systemPreferences } from 'electron' // eslint-disable-line
-
+import { app, BrowserWindow, ipcMain } from 'electron';
+// import store from '../renderer/store'; // eslint-disable-line
+// const touchid = require('macos-touchid');
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -58,11 +59,29 @@ app.on('activate', () => {
     createWindow();
   }
 });
+ipcMain.on('asynchronous-message', (event, args) => {
+  const { time, id, isLock } = args;
+  const child = new BrowserWindow({ show: false });
+  child.loadURL(`${winURL}/editor.html?id=${id}&&time=${time}&&isLock=${isLock}`);
+  child.once('ready-to-show', () => {
+    child.show();
+  });
+});
 
-// app.on('browser-window-blur', () => {
-//   store.commit('app/setAppState', false);
+// ipcMain.on('asynchronous-unlock', () => {
+//   console.log('asynchronous-unlock');
+//   if (process.platform === 'darwin') {
+//     try {
+//       const canPromptTouchID = systemPreferences.canPromptTouchID();
+//       if (!canPromptTouchID) return;
+//       systemPreferences.promptTouchID('To get consent for a Security-Gated Thing').then(() => {
+//         console.log('You have successfully authenticated with Touch ID!');
+//       }).catch((err) => {
+//         console.log(err);
+//       });
+//     } catch (e) {
+//       console.log(e);
+//     }
+//   }
 // });
 
-// app.on('browser-window-focus', () => {
-//   store.commit('app/setAppState', true);
-// });

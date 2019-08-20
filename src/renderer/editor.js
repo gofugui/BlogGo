@@ -5,8 +5,7 @@ import {
   Icon, Button, Layout, Header, Modal, Input, Badge,
   Poptip, Tag, Split, Message,
 } from 'iview';
-import App from './App';
-import router from './router';
+import Editor from './pages/editor';
 import store from './store';
 
 import Device from '../tools/device';
@@ -33,10 +32,9 @@ Vue.prototype.$Message = Message;
 Vue.prototype.Device = Device;
 /* eslint-disable no-new */
 new Vue({
-  components: { App },
-  router,
+  el: '#app',
+  components: { Editor },
   store,
-  template: '<App/>',
-
-}).$mount('#app');
+  template: '<Editor/>',
+});
 

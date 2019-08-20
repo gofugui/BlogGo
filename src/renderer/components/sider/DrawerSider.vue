@@ -11,9 +11,9 @@
             <li @click.prevent="handleClick(index)" 
               v-bind:class="{defaultStyle:sel === -1 && index === 0,select:sel===index,unfocus:sel === index&&(!isFocus)}"
               v-for="(item,index) in tagList" :key="index">
-              <input id="floderName" @keyup.enter="onblur" @focus="onfocus(index)" @blur="onblur" v-if="item.name === currentEditorName" :value="item.name"/>
+              <input id="floderName" @keyup.enter="onblur" @blur="onblur" v-if="item.name === currentEditorName" :value="item.name"/>
               <div class="folderName" v-else>{{item.name}}</div>
-              <Badge :count="item.count" :type="badgeType(item.count,item.name)"></Badge>
+              <Badge :count="item.count" :type="badgeType(item.count,item.name)"/>
             </li>
         </ul>
     </div>
@@ -80,20 +80,19 @@ export default {
         return;
       }
       const value = this.tagList.find((item, index) => this.sel === index);
-      this.$store.commit('app/renameTags', { ...value, name: newName });
-      const curIndex = this.tagList.findIndex(item => item.name === newName);
+
+      this.$store.dispatch('app/renameFolder', { ...value, name: newName });
       this.currentEditorName = '';
-      this.sel = curIndex;
     },
-    onfocus(index) {
-      this.sel = index;
-    },
+    // onfocus(index) {
+    //   this.sel = index;
+    // },
     // 选取当前的选择项
     handleClick(value) {
       this.sel = value;
-      const item = this.tagList.find((item, index) => this.sel === index);
+      const item = this.tagList.find((item, index) => value === index);
       const { id } = item;
-      this.$store.commit('app/currentSelectFolder', id);
+      this.$store.dispatch('app/currentSelectFolder', id);
       bus.$emit('clearSearchText');
       this.emitMenu();
     },
@@ -117,14 +116,14 @@ export default {
       const lastIndex = index === -1 ? arr.length + 1 : index + 1;
       const name = `新建文件夹 ${lastIndex}`;
       this.currentEditorName = name;
-      this.$store.commit('app/addTags', { name });
+      this.$store.dispatch('app/addFolder', { name });
     },
     ok() {
       const value = this.tagList.find((item, index) => this.sel === index);
-      const index = this.tagList.findIndex((item, index) => this.sel === index);
+
       const { id } = value;
-      this.sel = index - 1;
-      this.$store.commit('app/deleteTags', id);
+
+      this.$store.dispatch('app/deleteFolder', id);
     },
     cancel() {
 
@@ -142,7 +141,6 @@ export default {
     },
     reNameFolder() {
       const value = this.tagList.find((item, index) => this.sel === index);
-      // const index = this.$store.state.app.tags.findIndex((item, index) => this.sel === index);
       const { name } = value;
       this.currentEditorName = name;
     },
@@ -160,6 +158,11 @@ export default {
         default:
           return 'primary';
       }
+    },
+  },
+  watch: {
+    defaultSelectIndex(index) {
+      this.sel = index;
     },
   },
   updated() {

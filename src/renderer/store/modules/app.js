@@ -17,19 +17,21 @@ const defaultState = {
   tags: sortByName(db.select('tags')),
   posts: db.select('posts'),
   folderSelectId,
+  isUnLock: false,
+  isMacOs: process.platform === 'darwin',
 };
 export default{
   namespaced: true,
   state: defaultState,
   mutations: {
 
-    addTags(state, tag) {
+    addFolder(state, tag) {
       const id = db.add('tags', tag);
       state.folderSelectId = id;
       const tags = sortByName(db.select('tags'));
       state.tags = tags;
     },
-    deleteTags(state, id) {
+    deleteFolder(state, id) {
       const folderList = this.getters['app/folderList'];
       const index = folderList.findIndex(item => item.id === id);
 
@@ -47,7 +49,7 @@ export default{
       state.folderSelectId = tags[index - 1].id;
       state.tags = tags;
     },
-    renameTags(state, value) {
+    renameFolder(state, value) {
       const { id } = value;
       db.update('tags', id, value);
       const tags = sortByName(db.select('tags'));
@@ -99,17 +101,59 @@ export default{
       state.posts = posts;
     },
     updatePost(state, post) {
-      const { time, id } = post;
-      const updateContent = { timestamp: time, content: post };
+      const { time, id, title } = post;
+      const updateContent = { timestamp: time, content: post, title };
       db.update('posts', id, updateContent);
       const posts = db.select('posts');
       state.posts = posts;
+    },
+    lockPost(state, post) {
+      const { isLock, id } = post;
+      const updateContent = { isLock };
+      db.update('posts', id, updateContent);
+      const posts = db.select('posts');
+      state.posts = posts;
+    },
+    unlockPosts(state) {
+      state.isUnLock = true;
     },
     fixedPost(state, { id, fixed }) {
       const updateToFixed = { fixed };
       db.update('posts', id, updateToFixed);
       const posts = db.select('posts');
       state.posts = posts;
+    },
+  },
+  actions: {
+    updatePost(context, post) {
+      context.commit('updatePost', post);
+    },
+    deletePost(context, value) {
+      context.commit('deletePost', value);
+    },
+    addPosts(context) {
+      context.commit('addPosts');
+    },
+    fixedPost(context, { id, fixed }) {
+      context.commit('fixedPost', { id, fixed });
+    },
+    lockPost(context, post) {
+      context.commit('lockPost', post);
+    },
+    unlockPosts(context) {
+      context.commit('unlockPosts');
+    },
+    currentSelectFolder(context, id) {
+      context.commit('currentSelectFolder', id);
+    },
+    renameFolder(context, value) {
+      context.commit('renameFolder', value);
+    },
+    addFolder(context, tag) {
+      context.commit('addFolder', tag);
+    },
+    deleteFolder(context, id) {
+      context.commit('deleteFolder', id);
     },
   },
   getters: {

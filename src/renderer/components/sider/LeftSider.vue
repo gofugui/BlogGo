@@ -1,12 +1,28 @@
 <template>
   <div @blur="divOnBlur" @focus="divOnFocus" tabindex="1" class="leftSider">
-      
-      <div  class="item" @dblclick.prevent='onItemDoubleClick(index)' @click.prevent='onItemClick(index)' v-bind:class="{select:sel === index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in this.factory()" :key="item.id">
+      <Modal
+        v-model="modal1"
+        title="Common Modal dialog box title"
+          @on-ok="ok"
+          @on-cancel="cancel">
+          <p>Content of dialog</p>
+          <p>Content of dialog</p>
+          <p>Content of dialog</p>
+      </Modal>
+      <div  class="item" @dblclick.prevent='onItemDoubleClick(index)' @click.prevent='onItemClick(index)' v-bind:class="{select:sel === index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in factory()" :key="item.id">
+        <div class="leftContent">
+            <div v-show="item.isLock">
+                <span class="icon iconfont" v-if="isUnLock">&#xe69a;</span>
+                <Icon v-else type="ios-lock"/>
+            </div>
+           
+        </div>
         <div class="itemContent">
           <div class="contentTitle"><Tag v-show="item.fixed" color="orange">置顶</Tag><span v-html="getTitle(item)"></span></div>
           <div class="describer">
             <span style="color:rgba(224,224,224,1);font-size:13px">{{formatTime(item.timestamp)}}</span>
-            <span style="color:rgba(174,174,174,1);font-size:13px;" v-html="getContent(item)"></span>
+            <span v-if="item.isLock" style="color:rgba(174,174,174,1);font-size:13px;" v-html="isUnLock?'已解锁': '已锁定'"></span>
+            <span v-else v-html="getContent(item)"></span>
           </div>
           <div class="folderInfo" v-if="searchText"> 
             <Icon type="ios-folder-open" /><span style="font-size:13px;">{{matchFolderName(item.tagId)}}</span>
@@ -19,11 +35,13 @@
 import momentLocale from 'moment/locale/zh-cn';
 import bus from '../../common/js/bus';
 
-const { resolveTitle, resolveContent, resolveMatchContent } = require('../../../tools/resolveContentJson').default;
+const { resolveContent, resolveMatchContent } = require('../../../tools/resolveContentJson').default;
 
 const moment = require('moment');
+const touchid = require('macos-touchid');
 
 moment.updateLocale('zh-cn', momentLocale);
+
 export default {
 
   data() {
@@ -33,6 +51,8 @@ export default {
       isFocus: false,
       lastSelFolderId: '',
       searchText: '',
+      modal1: false,
+      isUnLock: false,
     };
   },
   methods: {
@@ -43,13 +63,20 @@ export default {
       const { name } = value;
       return name;
     },
+    sortSearchPosts() {
+      const tempSearchPosts = this.searchPosts.sort((a, b) => b.timestamp - a.timestamp);
+      const searchFixedPosts = tempSearchPosts.filter(item => item.fixed);
+      const searchUnFixedPosts = tempSearchPosts.filter(item => !item.fixed);
+      return [...searchFixedPosts, ...searchUnFixedPosts];
+    },
+    // 用于切换显示文件夹下备忘录和搜索备忘录功能
     factory() {
       const routerName = this.$route.name;
       /**
        * 1、路由侦听,自己所在的路由和，从自身下发的路由
        */
       if (routerName === 'editor') {
-        return this.searchText ? this.searchPosts : this.currentFolderPosts;
+        return this.searchText ? this.sortSearchPosts() : this.currentFolderPosts;
       }
       const text = this.$route.params.searchText;
       if (text) {
@@ -65,7 +92,8 @@ export default {
           this.searchText = text;
           this.sel = 0;
         }
-        return this.searchPosts;
+
+        return this.sortSearchPosts();
       }
       this.sel = this.storeSel ? this.storeSel : this.sel;
       this.storeSel = '';
@@ -87,9 +115,12 @@ export default {
       return matchPosts;
     },
     routeTo() {
-      const { id, time } = this.currentSelPostId();
+      const {
+        id, time, isLock,
+      } = this.currentSelPost;
+      const routerStr = `/router-view/editor/${id}/${time}/${isLock}`;
 
-      this.$router.push(`/router-view/editor/${id}/${time}`);
+      this.$router.push(routerStr);
     },
     formatTime(timestamp, type) {
       if (type) {
@@ -99,7 +130,16 @@ export default {
     },
     emitMenu() {
       const value = this.currentFolderPosts.find((item, _index) => this.sel === _index);
+      if (!value) {
+        bus.$emit('show', {
+          menu: [
+            [{ label: '新建备忘录', onPress: this.addBlog }],
+          ],
+        });
+        return;
+      }
       const fixLabel = value.fixed ? '取消置顶备忘录' : '置顶备忘录';
+      const lockLabel = value.isLock ? '移除锁定' : '锁定备忘录';
       // const fixLabel = '置顶备忘录';
       if (this.type === 1) {
         if (this.folderSelectId === this.trashId) {
@@ -123,11 +163,11 @@ export default {
               [{ label: '删除', onPress: this.deletePost }],
               [{ type: 'separator' }],
               [{ label: fixLabel, onPress: this.fixPost },
-                { label: '锁定备忘录', onPress: () => null }],
+                { label: lockLabel, onPress: this.lockPost }],
               [{
                 type: 'separator',
               }],
-              [{ label: '移到', onPress: () => null }],
+              [{ label: '移到', onPress: () => {} }],
               [{
                 type: 'separator',
               }],
@@ -145,16 +185,61 @@ export default {
         });
       }
     },
+    lockPost() {
+      if (process.platform === 'darwin') {
+        try {
+          if (touchid.canAuthenticate() === false) {
+            this.modal1 = true;
+          }
+          touchid.authenticate('锁定此备忘录', (err, didAuthenticate) => {
+            if (!err) {
+              if (didAuthenticate) {
+                const { id } = this.currentSelPost;
+                this.$store.dispatch('app/lockPost', { isLock: true, id });
+              }
+            }
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      } else {
+        this.modal1 = true;
+      }
+    },
+    // unLockPost() {
+    //   if (process.platform === 'darwin') {
+    //     try {
+    //       if (touchid.canAuthenticate() === false) {
+    //         return;
+    //       }
+    //       touchid.authenticate('解锁此备忘录', (err, didAuthenticate) => {
+    //         if (!err) {
+    //           if (didAuthenticate) {
+    //             this.$store.dispatch('app/unlockPosts');
+    //           }
+    //         }
+    //       });
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+    //   }
+    // },
     onItemClick(index) {
       this.sel = index;
-      this.routeTo();
       this.emitMenu();
       this.isFocus = true;
+      this.routeTo();
+      const { id } = this.currentSelPost;
+      this.id = id;
     },
     onItemDoubleClick(index) {
-      const { dialog } = require('electron').remote;
+      // const { BrowserWindow } = require('electron').remote;
+
+      const { ipcRenderer } = require('electron');
+
       this.sel = index;
-      this.routeTo();
+      const { id, time, isLock } = this.currentSelPost;
+      ipcRenderer.send('asynchronous-message', { id, time, isLock });
     },
     divOnFocus() {
       //
@@ -163,26 +248,17 @@ export default {
     divOnBlur() {
       this.isFocus = false;
     },
-    currentSelPostId() {
-      const postsArr = this.searchText ? this.searchPosts : this.currentFolderPosts;
-      const currentIndex = this.sel || 0;
-      const post = postsArr.find((item, index) => index === currentIndex);
-      if (post) {
-        const { id, timestamp } = post;
-        return { id, time: this.formatTime(timestamp, 'LLL') };
-      }
-      return { id: '404', time: 0 };
-    },
+
     addBlog() {
       const index = this.currentFolderPosts.findIndex(item => !item.content.blocks.length);
       if (index > -1) {
         this.sel = index;
         this.isFocus = true;
+        this.routeTo();
       } else {
-        this.$store.commit('app/addPosts');
-        this.sel = 0;
+        this.$store.dispatch('app/addPosts');
       }
-      this.routeTo();
+      //
     },
     deletePost() {
       const postsArr = this.searchText ? this.searchPosts : this.currentFolderPosts;
@@ -191,18 +267,17 @@ export default {
         this.$Message.info('没有待删除项');
         return;
       }
-      this.$store.commit('app/deletePost', value);
+      this.$store.dispatch('app/deletePost', value);
       if (this.sel) {
         this.sel = this.sel - 1 > -1 ? this.sel - 1 : 0;
       }
-      this.routeTo();
     },
     // 置顶备忘录或取消置顶
     fixPost() {
       const value = this.currentFolderPosts.find((item, index) => this.sel === index);
       const { id } = value;
-      this.$store.commit('app/fixedPost', { id, fixed: !value.fixed });
-      this.sel = this.currentFolderPosts.findIndex(item => id === item.id);
+
+      this.$store.dispatch('app/fixedPost', { id, fixed: !value.fixed });
     },
     subStrMatchText(text, num = 10) {
       if (this.searchText) {
@@ -219,22 +294,26 @@ export default {
       }
       return '';
     },
-    // 截取字符作为标题
-    getTitle({ content, title }) {
-      const subTitle = resolveTitle(content);
-
-      return this.subStrMatchText(subTitle) || subTitle || title;
+    // // 截取字符作为标题
+    getTitle({ title }) {
+      return this.subStrMatchText(title) || title;
     },
     // 截取字符作为内容简介
     getContent({ content }) {
       const subContent = resolveContent(content);
       return this.subStrMatchText(subContent, 3) || subContent || '无附加文本';
     },
+    ok() {
+      this.$Message.info('Clicked ok');
+    },
+    cancel() {
+      this.$Message.info('Clicked cancel');
+    },
   },
   mounted() {
     this.lastSelFolderId = this.folderSelectId;
-
     this.routeTo();
+
     bus.$on('addPost', () => {
       this.addBlog();
     });
@@ -243,15 +322,29 @@ export default {
     });
   },
   computed: {
-    isActive: vm => vm.$store.state.app.isActive,
     currentFolderPosts() {
       const posts = this.$store.getters['app/currentFolderPosts'];
       const fixedPosts = posts.filter(item => item.fixed);
       const noFixedPosts = posts.filter(item => !item.fixed);
+      const newPostsList = [...fixedPosts, ...noFixedPosts];
 
-      return [...fixedPosts, ...noFixedPosts];
+      return newPostsList;
     },
+    currentSelPost() {
+      const postsArr = this.searchText ? this.searchPosts : this.currentFolderPosts;
+      const currentIndex = this.sel || 0;
+      const post = postsArr.find((item, index) => index === currentIndex);
 
+      if (post) {
+        const {
+          id, timestamp, isLock,
+        } = post;
+        return {
+          id, time: this.formatTime(timestamp, 'LLL'), isLock,
+        };
+      }
+      return { id: '404', time: '0', isLock: false };
+    },
     folderSelectId() {
       return this.$store.state.app.folderSelectId;
     },
@@ -273,6 +366,23 @@ export default {
     $route: 'factory',
     searchText() {
       this.routeTo();
+    },
+    currentFolderPosts(newList, oldList) {
+      if (this.lastSelFolderId === this.folderSelectId) {
+        if (newList.length > oldList.length) {
+          this.sel = newList.findIndex(item => item.title === '新建备忘录');
+          const post = newList.find(item => item.title === '新建备忘录');
+          if (post) {
+            this.id = post.id;
+          }
+
+          this.routeTo();
+        } else if (newList.length < oldList.length) {
+          this.routeTo();
+        } else if (this.id) {
+          this.sel = newList.findIndex(item => item.id === this.id);
+        }
+      }
     },
   },
 };
@@ -300,13 +410,18 @@ export default {
       background rgba(52,53,55,1)
     .item 
       width 100%
-    
-      padding-left 20px
-      padding-top 10px
+      display flex
+      flex-direction row
       cursor pointer
+      .leftContent
+        width 1.25rem
+        height 100%
+        padding-top 9px
+        text-align center
       .itemContent
         width 100%
         height 100%
+        padding-top 10px
         border-bottom:.05px solid rgba(52,53,55,1);
         padding-bottom 10px
         overflow hidden
