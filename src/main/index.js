@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-// import store from '../renderer/store'; // eslint-disable-line
+import { app, BrowserWindow, ipcMain, systemPreferences } from 'electron';
+import store from '../renderer/store'; // eslint-disable-line
 // const touchid = require('macos-touchid');
 /**
  * Set `__static` path to static files in production
@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\') // eslint-disable-line
 }
 
-
+const childWindow = {};
 let mainWindow;
 const winURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:9080'
@@ -42,6 +42,9 @@ function createWindow() {
   mainWindow.loadURL(winURL);
 
   mainWindow.on('closed', () => {
+    if (childWindow) {
+      Object.values(childWindow).forEach(item => item.close());
+    }
     mainWindow = null;
   });
 }
@@ -59,29 +62,57 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
 ipcMain.on('asynchronous-message', (event, args) => {
   const { time, id, isLock } = args;
-  const child = new BrowserWindow({ show: false });
+  if (childWindow[id]) {
+    const win = childWindow[id];
+    win.restore();
+    return;
+  }
+  const child = new BrowserWindow({
+    show: false,
+    backgroundColor: '#272c37',
+    darkTheme: true,
+    minWidth: 550,
+    minHeight: 387,
+    webPreferences: {
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true,
+      backgroundThrottling: false,
+      scrollBounce: true,
+    },
+  });
   child.loadURL(`${winURL}/editor.html?id=${id}&&time=${time}&&isLock=${isLock}`);
   child.once('ready-to-show', () => {
     child.show();
   });
+  child.once('closed', () => {
+    childWindow[id] = null;
+  });
+  childWindow[id] = child;
 });
 
-// ipcMain.on('asynchronous-unlock', () => {
-//   console.log('asynchronous-unlock');
-//   if (process.platform === 'darwin') {
-//     try {
-//       const canPromptTouchID = systemPreferences.canPromptTouchID();
-//       if (!canPromptTouchID) return;
-//       systemPreferences.promptTouchID('To get consent for a Security-Gated Thing').then(() => {
-//         console.log('You have successfully authenticated with Touch ID!');
-//       }).catch((err) => {
-//         console.log(err);
-//       });
-//     } catch (e) {
-//       console.log(e);
-//     }
-//   }
-// });
+/**
+ * type:事件类型
+ * params
+ */
+ipcMain.on('asynchronous-touchBar', async (event, { type, tipInfo, params }) => {
+  if (process.platform === 'darwin') {
+    try {
+      const canPromptTouchID = systemPreferences.canPromptTouchID();
+      if (!canPromptTouchID) return;
+      const [error, res] = await systemPreferences.promptTouchID(tipInfo).then(() =>
+        [null, true]).catch(err => [err, null]);
+      if (!error) {
+        if (res) {
+          store.dispatch(type, params);
+          // console.log('You have successfully authenticated with Touch ID!');
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+});
 

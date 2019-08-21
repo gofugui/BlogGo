@@ -31,8 +31,8 @@ export default {
       innerDrawerPercent: 0,
     };
   },
-  mounted() {
-
+  created() {
+    this.$store.dispatch('app/unlockPosts', false);
   },
   methods: {
     onMenuEvent(show) {

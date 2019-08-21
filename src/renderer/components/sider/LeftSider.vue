@@ -36,10 +36,7 @@ import momentLocale from 'moment/locale/zh-cn';
 import bus from '../../common/js/bus';
 
 const { resolveContent, resolveMatchContent } = require('../../../tools/resolveContentJson').default;
-
 const moment = require('moment');
-const touchid = require('macos-touchid');
-
 moment.updateLocale('zh-cn', momentLocale);
 
 export default {
@@ -52,35 +49,27 @@ export default {
       lastSelFolderId: '',
       searchText: '',
       modal1: false,
-      isUnLock: false,
+      tagId: '',
+      routeParams: '',
     };
   },
   methods: {
-    matchFolderName(tagId) {
-      const value = this.$store.state.app.tags.find(item => item.id === tagId);
 
-      if (!value) return '';
-      const { name } = value;
-      return name;
-    },
-    sortSearchPosts() {
-      const tempSearchPosts = this.searchPosts.sort((a, b) => b.timestamp - a.timestamp);
-      const searchFixedPosts = tempSearchPosts.filter(item => item.fixed);
-      const searchUnFixedPosts = tempSearchPosts.filter(item => !item.fixed);
-      return [...searchFixedPosts, ...searchUnFixedPosts];
-    },
     // 用于切换显示文件夹下备忘录和搜索备忘录功能
     factory() {
-      const routerName = this.$route.name;
+      const { name, params } = this.$route;
       /**
        * 1、路由侦听,自己所在的路由和，从自身下发的路由
        */
-      if (routerName === 'editor') {
-        return this.searchText ? this.sortSearchPosts() : this.currentFolderPosts;
+      if (name === 'editor') {
+        return this.searchText ? this.sortSearchPosts : this.currentFolderPosts;
       }
-      const text = this.$route.params.searchText;
+      const text = params.searchText;
       if (text) {
         if (this.searchText !== text) {
+          this.searchText = text;
+          this.searchPosts = this.onSearch;
+
           // 存储搜索前列表的选项索引，在搜索完成后还原
           if (!this.storeSel) {
             // 当页面处于搜索状态时，菜单状态为2，只可以删除或者移到其他文件夹
@@ -88,12 +77,10 @@ export default {
             this.emitMenu();
             this.storeSel = this.sel;
           }
-          this.searchPosts = this.onSearch(text);
-          this.searchText = text;
           this.sel = 0;
         }
 
-        return this.sortSearchPosts();
+        return this.sortSearchPosts;
       }
       this.sel = this.storeSel ? this.storeSel : this.sel;
       this.storeSel = '';
@@ -104,15 +91,17 @@ export default {
 
       return this.currentFolderPosts;
     },
-    onSearch(text) {
-      const matchPosts = this.allPosts.reduce((total, item) => {
-        const flag = resolveMatchContent(item.content, text);
-        if (flag) {
-          total.push(item);
-        }
-        return total;
-      }, []);
-      return matchPosts;
+    matchFolderName(tagId) {
+      const value = this.$store.state.app.tags.find(item => item.id === tagId);
+
+      if (!value) return '';
+      const { name } = value;
+      return name;
+    },
+    resume() {
+      const { oldTagID, tagId } = this.currentSelPost;
+      const params = { postId: this.id, tagId, oldTagID };
+      this.$store.dispatch('app/resumePost', params);
     },
     routeTo() {
       const {
@@ -129,7 +118,8 @@ export default {
       return moment(timestamp).calendar(); // moment(timestamp).startOf('hour').fromNow();//
     },
     emitMenu() {
-      const value = this.currentFolderPosts.find((item, _index) => this.sel === _index);
+      const currentPosts = this.searchText ? this.sortSearchPosts : this.currentFolderPosts;
+      const value = currentPosts.find((item, _index) => this.sel === _index);
       if (!value) {
         bus.$emit('show', {
           menu: [
@@ -150,24 +140,28 @@ export default {
               [{
                 type: 'separator',
               }],
-              [{ label: '移到', onPress: () => null }],
+              [{ label: '移到', submenu: this.allFolder }],
               [{
                 type: 'separator',
               }],
-              [{ label: '恢复', onPress: () => null }],
+              [{ label: '恢复', onPress: this.resume }],
             ],
           });
         } else {
           bus.$emit('show', {
             menu: [
               [{ label: '删除', onPress: this.deletePost }],
-              [{ type: 'separator' }],
-              [{ label: fixLabel, onPress: this.fixPost },
-                { label: lockLabel, onPress: this.lockPost }],
               [{
                 type: 'separator',
               }],
-              [{ label: '移到', onPress: () => {} }],
+              [
+                { label: fixLabel, onPress: this.fixPost },
+                { label: lockLabel, onPress: this.lockPost },
+              ],
+              [{
+                type: 'separator',
+              }],
+              [{ label: '移到', submenu: this.allFolder }],
               [{
                 type: 'separator',
               }],
@@ -180,57 +174,36 @@ export default {
           menu: [
             [{ label: '删除', onPress: this.deletePost }],
             [{ type: 'separator' }],
-            [{ label: '移到', onPress: () => null }],
+            [{ label: '移到', submenu: this.allFolder }],
           ],
         });
       }
     },
     lockPost() {
-      if (process.platform === 'darwin') {
-        try {
-          if (touchid.canAuthenticate() === false) {
-            this.modal1 = true;
-          }
-          touchid.authenticate('锁定此备忘录', (err, didAuthenticate) => {
-            if (!err) {
-              if (didAuthenticate) {
-                const { id } = this.currentSelPost;
-                this.$store.dispatch('app/lockPost', { isLock: true, id });
-              }
-            }
-          });
-        } catch (e) {
-          console.log(e);
-        }
+      if (this.canUseTouchBar) {
+        const { ipcRenderer } = require('electron');
+        const { id, isLock } = this.currentSelPost;
+        ipcRenderer.send(
+          'asynchronous-touchBar',
+          {
+            type: 'app/lockPost',
+            tipInfo: isLock ? '移除对此备忘录的锁定' : '锁定此备忘录',
+            params: { isLock: !isLock, id },
+          },
+        );
       } else {
         this.modal1 = true;
       }
     },
-    // unLockPost() {
-    //   if (process.platform === 'darwin') {
-    //     try {
-    //       if (touchid.canAuthenticate() === false) {
-    //         return;
-    //       }
-    //       touchid.authenticate('解锁此备忘录', (err, didAuthenticate) => {
-    //         if (!err) {
-    //           if (didAuthenticate) {
-    //             this.$store.dispatch('app/unlockPosts');
-    //           }
-    //         }
-    //       });
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-    //   }
-    // },
     onItemClick(index) {
       this.sel = index;
-      this.emitMenu();
       this.isFocus = true;
       this.routeTo();
-      const { id } = this.currentSelPost;
+      const { id, tagId } = this.currentSelPost;
       this.id = id;
+      this.tagId = tagId;
+
+      this.emitMenu();
     },
     onItemDoubleClick(index) {
       // const { BrowserWindow } = require('electron').remote;
@@ -248,7 +221,6 @@ export default {
     divOnBlur() {
       this.isFocus = false;
     },
-
     addBlog() {
       const index = this.currentFolderPosts.findIndex(item => !item.content.blocks.length);
       if (index > -1) {
@@ -261,7 +233,7 @@ export default {
       //
     },
     deletePost() {
-      const postsArr = this.searchText ? this.searchPosts : this.currentFolderPosts;
+      const postsArr = this.searchText ? this.sortSearchPosts : this.currentFolderPosts;
       const value = postsArr.find((item, index) => index === this.sel);
       if (!value) {
         this.$Message.info('没有待删除项');
@@ -309,6 +281,9 @@ export default {
     cancel() {
       this.$Message.info('Clicked cancel');
     },
+    moveToAnotherFolder(tagId) {
+      this.$store.dispatch('app/moveToAnotherFolder', { postId: this.id, tagId });
+    },
   },
   mounted() {
     this.lastSelFolderId = this.folderSelectId;
@@ -331,16 +306,16 @@ export default {
       return newPostsList;
     },
     currentSelPost() {
-      const postsArr = this.searchText ? this.searchPosts : this.currentFolderPosts;
+      const postsArr = this.searchText ? this.sortSearchPosts : this.currentFolderPosts;
       const currentIndex = this.sel || 0;
       const post = postsArr.find((item, index) => index === currentIndex);
 
       if (post) {
         const {
-          id, timestamp, isLock,
+          id, timestamp, isLock, tagId, oldTagID,
         } = post;
         return {
-          id, time: this.formatTime(timestamp, 'LLL'), isLock,
+          id, time: this.formatTime(timestamp, 'LLL'), isLock, tagId, oldTagID,
         };
       }
       return { id: '404', time: '0', isLock: false };
@@ -353,6 +328,35 @@ export default {
     },
     allPosts() {
       return this.$store.state.app.posts;
+    },
+    canUseTouchBar() {
+      return this.$store.state.app.canUseTouchBar;
+    },
+    isUnLock() {
+      return this.$store.state.app.isUnLock;
+    },
+    allFolder() {
+      return this.$store.state.app.tags.filter(item =>
+        item.id !== this.trashId && item.id !== this.tagId).map(item => ({
+        label: item.name,
+        onPress: () => { this.moveToAnotherFolder(item.id); },
+      }));
+    },
+    sortSearchPosts() {
+      const tempSearchPosts = this.searchPosts.sort((a, b) => b.timestamp - a.timestamp);
+      const searchFixedPosts = tempSearchPosts.filter(item => item.fixed);
+      const searchUnFixedPosts = tempSearchPosts.filter(item => !item.fixed);
+      return [...searchFixedPosts, ...searchUnFixedPosts];
+    },
+    onSearch() {
+      const matchPosts = this.allPosts.reduce((total, item) => {
+        const flag = resolveMatchContent(item.content, this.searchText);
+        if (flag) {
+          total.push(item);
+        }
+        return total;
+      }, []);
+      return matchPosts;
     },
   },
   updated() {

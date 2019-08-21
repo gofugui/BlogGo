@@ -2,15 +2,18 @@
   <div id="editLayout" @click="onNewBlog">
     
     <div v-show="id">
-      <div v-show="isLock" class="lockMask">
-          <button @click="unLockPost" style="background:transparent;border:0px;outline:0">
+      <div v-show="isLock && !isUnLock" class="lockMask">
+          <button @click="unLockPost" style="background:transparent;border:0px;outline:0;display:flex;justify-content:center;align-items:center;height:125px">
           
-            <div><Icon size="120" style="color:rgba(64,64,64,1)" type="md-lock" /></div>
-            <div v-show="touchBar" style="margin-top:-38px;"><span :class="['icon','iconfont','touchStyle']">&#xe602;</span></div>  
+            <div style="position:absolute"><Icon size="120" style="color:rgba(64,64,64,1)" type="md-lock" /></div>
+            <div v-show="canUseTouchBar" style="position:relative;top:30px"><span :class="['icon','iconfont','touchStyle']">&#xe602;</span></div>  
           </button>  
-          <div style="margin-top: 10px"><h3>此备忘录已被锁定</h3></div> 
-          <div>{{touchBar?'请使用触控ID查看此备忘录':'请输入备忘录密码查看此备忘录'}}</div> 
-          <div v-show="!touchBar" style="margin-top: 10px"><input placeholder="输入密码" style="width: 200px" type="password"/></div>
+          
+          <h3>此备忘录已被锁定</h3>
+          
+          <div style="margin-top: 3px"><Icon size="25" color="rgba(255,214,99,1)" type="ios-megaphone" />{{canUseTouchBar?' 请点击👆指纹锁按钮，使用触控ID查看此备忘录':' 请输入备忘录密码查看此备忘录'}}</div> 
+          <div v-show="!canUseTouchBar" style="margin-top: 15px"><input placeholder="输入密码" style="width: 200px" type="password"/></div>
+          
       </div>
       <div > 
         <div class="label"><label>{{time}}</label></div>
@@ -24,7 +27,7 @@ import momentLocale from 'moment/locale/zh-cn';
 import EditorJS from '@editorjs/editorjs';
 import bus from '../../common/js/bus';
 const moment = require('moment');
-const touchid = require('macos-touchid');
+
 moment.updateLocale('zh-cn', momentLocale);
 // const AttachesTool = require('@editorjs/attaches');
 // const Personality = require('@editorjs/personality');
@@ -51,7 +54,7 @@ export default {
       content: '',
       time: '',
       isLock: false,
-      touchBar: false,
+
     };
   },
   methods: {
@@ -64,7 +67,7 @@ export default {
         if (!text) return '';
         return text.replace(/&nbsp;/g, '');
       };
-
+      if (newData.blocks.length !== this.content.blocks.length) return true;
       for (let i = 0; i < newData.blocks.length; i += 1) {
         if (!this.content.blocks[i]) return true;
         const keys = Object.keys(newData.blocks[i]);
@@ -82,21 +85,16 @@ export default {
       return false;
     },
     unLockPost() {
-      if (process.platform === 'darwin') {
+      if (this.canUseTouchBar) {
         const { ipcRenderer } = require('electron');
 
-
-        ipcRenderer.send('asynchronous-unlock');
-        // if (touchid.canAuthenticate() === false) {
-        //   return;
-        // }
-        // touchid.authenticate('解锁此备忘录', (err, didAuthenticate) => {
-        //   if (!err) {
-        //     if (didAuthenticate) {
-        //       this.$store.dispatch('app/unlockPosts');
-        //     }
-        //   }
-        // });
+        ipcRenderer.send(
+          'asynchronous-touchBar',
+          {
+            type: 'app/unlockPosts',
+            tipInfo: '解锁此备忘录',
+          },
+        );
       }
     },
     async save() {
@@ -109,15 +107,16 @@ export default {
       }
       const [error, content] = await this.editor.save().then(outputData =>
         [null, outputData]).catch(error => [error, null]);
-      if (this.currentFolderId === this.trashId) {
-        this.$Message.info({ content: '不能编辑最近删除的备忘录，您需要先恢复备忘录', duration: 2.0 });
-        this.editor.clear();
-        if (this.content) {
-          this.editor.render(this.content);
-        }
-        return;
-      }
+
       if (!error && this.contentDiff(content)) {
+        if (this.currentFolderId === this.trashId) {
+          this.$Message.info({ content: '不能编辑最近删除的备忘录，您需要先恢复备忘录', duration: 2.0 });
+          this.editor.clear();
+          if (this.content) {
+            this.editor.render(this.content);
+          }
+          return;
+        }
         const { time } = content;
         const title = this.getTitle({ content }) || '新建备忘录';
         document.title = title;
@@ -288,7 +287,6 @@ export default {
     post() {
       if (!currentWindow.isFocused()) {
         const paramsObj = this.getQueryVariable() || this.$route;
-
         this.onEditor(paramsObj);
       }
     },
@@ -302,10 +300,6 @@ export default {
 
       this.onEditor(paramsObj);
     }
-    // 判断是否可以使用Touch Bar
-    if (touchid.canAuthenticate()) {
-      this.touchBar = true;
-    }
   },
   computed: {
     post() {
@@ -317,6 +311,12 @@ export default {
     currentFolderId() {
       return this.$store.state.app.folderSelectId;
     },
+    canUseTouchBar() {
+      return this.$store.state.app.canUseTouchBar;
+    },
+    isUnLock() {
+      return this.$store.state.app.isUnLock;
+    },
   },
   destroyed() {
     if (this.timer) { clearTimeout(this.timer); }
@@ -324,15 +324,34 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
   ::-webkit-input-placeholder
         color rgba(143,143,144,1)
         text-align center
-  #editLayout
+  ::-webkit-scrollbar
+        width 10px
     
+  ::-webkit-scrollbar-thumb
+      border-radius 10px
+      -webkit-box-shadow inset 0 0 8px rgba(0,0,0,0.2)
+      background #535353 
+    
+  ::-webkit-scrollbar-track
+      -webkit-box-shadow inset 0 0 8px rgba(0,0,0,0.3)
+      border-radius 10px
+      background-color rgba(85,85,93,.5)
+  body,
+  html
+    padding 0
+    margin 0
+    height 100%
+    background rgba(39,38,39,1)
+  #editLayout
     height 100%
     width 100%
     overflow hidden
+    color #fff
+    font-size 16px
     &:hover
       overflow overlay
   .label

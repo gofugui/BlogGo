@@ -9,10 +9,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   modules,
   plugins: [
-    createPersistedState({
-
-      blacklist: ['app/unlockPosts'],
-    }),
+    createPersistedState(),
     createSharedMutations(),
   ],
   strict: process.env.NODE_ENV !== 'production',

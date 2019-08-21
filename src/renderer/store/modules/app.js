@@ -1,5 +1,7 @@
 
 import db from '../../../db';
+import device from '../../../tools/device';
+
 function sortByName(arr) {
   const temp = arr;
   const { length } = temp;
@@ -13,12 +15,14 @@ function sortByName(arr) {
   return [defaultItemFirst, ...sortArr, defaultItemLast];
 }
 const folderSelectId = db.select('tags')[0].id;
+
 const defaultState = {
   tags: sortByName(db.select('tags')),
   posts: db.select('posts'),
   folderSelectId,
   isUnLock: false,
-  isMacOs: process.platform === 'darwin',
+  isWindows: device.isWindows,
+  canUseTouchBar: device.canUseTouchBar,
 };
 export default{
   namespaced: true,
@@ -114,14 +118,44 @@ export default{
       const posts = db.select('posts');
       state.posts = posts;
     },
-    unlockPosts(state) {
-      state.isUnLock = true;
+    unlockPosts(state, isUnLock = true) {
+      state.isUnLock = isUnLock;
     },
     fixedPost(state, { id, fixed }) {
       const updateToFixed = { fixed };
       db.update('posts', id, updateToFixed);
       const posts = db.select('posts');
       state.posts = posts;
+    },
+    moveToAnotherFolder(state, { postId, tagId }) {
+      const movetoFolder = { tagId, oldTagID: state.folderSelectId };
+      db.update('posts', postId, movetoFolder);
+      // 更新数量
+      const moveToFolderCount = state.tags.find(item => item.id === tagId).count;
+      db.update('tags', tagId, { count: moveToFolderCount ? moveToFolderCount + 1 : 1 });
+      const moveFolderCount = state.tags.find(item => item.id === state.folderSelectId).count;
+      db.update('tags', state.folderSelectId, { count: moveFolderCount - 1 });
+
+      const posts = db.select('posts');
+      state.posts = posts;
+      // 更新state
+      const tags = sortByName(db.select('tags'));
+      state.tags = tags;
+    },
+    resumePost(state, { postId, tagId, oldTagID }) {
+      const resumetoFolder = { tagId: oldTagID, oldTagID: tagId };
+      db.update('posts', postId, resumetoFolder);
+
+      // 更新数量
+      const resumeToFolderCount = state.tags.find(item => item.id === oldTagID).count;
+      db.update('tags', oldTagID, { count: resumeToFolderCount ? resumeToFolderCount + 1 : 1 });
+      const resumeFolderCount = state.tags.find(item => item.id === tagId).count;
+      db.update('tags', tagId, { count: resumeFolderCount - 1 });
+      const posts = db.select('posts');
+      state.posts = posts;
+      // 更新state
+      const tags = sortByName(db.select('tags'));
+      state.tags = tags;
     },
   },
   actions: {
@@ -139,9 +173,10 @@ export default{
     },
     lockPost(context, post) {
       context.commit('lockPost', post);
-    },
-    unlockPosts(context) {
       context.commit('unlockPosts');
+    },
+    unlockPosts(context, flag) {
+      context.commit('unlockPosts', flag);
     },
     currentSelectFolder(context, id) {
       context.commit('currentSelectFolder', id);
@@ -154,6 +189,12 @@ export default{
     },
     deleteFolder(context, id) {
       context.commit('deleteFolder', id);
+    },
+    moveToAnotherFolder(context, id) {
+      context.commit('moveToAnotherFolder', id);
+    },
+    resumePost(context, params) {
+      context.commit('resumePost', params);
     },
   },
   getters: {

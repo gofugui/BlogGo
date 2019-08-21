@@ -5,15 +5,15 @@
        <ul v-for="items in menu" v-if="items[0].label">
           <li v-for="item in items" v-if="item.submenu">
             <div class="submenu">
-              <span>{{item.label}}</span><span>></span>
-              <ul class="sublist" v-for="subitems in item.submenu"  v-if="subitems[0].label">
-                <li @click="item.onPress" v-for="subitem in subitems">{{subitem.label}}</li>
+              <span>{{item.label}}
+              <ul class="sublist">
+                <li v-if="subitem.label" @click="subitem.onPress" v-for="subitem in item.submenu">{{subitem.label}}</li>
+                <div v-else class="divider"></div>
               </ul>
-              <div v-else class="divider"></div>
-            </div>
-            
+              </span><span>></span>
+            </div>   
           </li>
-          <li :class="{disable:isDisable(item.disable) }" @click="item.onPress" v-else>{{item.label}}</li>
+          <li v-else :class="{disable:isDisable(item.disable) }" @click="item.onPress">{{item.label}}</li>
        </ul>
        <div v-else class="divider"></div>
        
@@ -164,14 +164,15 @@ export default {
       align-items center
       transition 0.5s all
       .sublist
-        
         display none
       &:hover
         ul.sublist
           display inline-block
+          overflow-y scroll
           position absolute
+          margin-top -29px
           left 158px
-          
+          max-height 200px
           padding 5px 0px
           width 160px
           border 1px solid rgba(83,82,84,1)
