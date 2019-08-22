@@ -12,7 +12,9 @@
           <h3>此备忘录已被锁定</h3>
           
           <div style="margin-top: 3px"><Icon size="25" color="rgba(255,214,99,1)" type="ios-megaphone" />{{canUseTouchBar?' 请点击👆指纹锁按钮，使用触控ID查看此备忘录':' 请输入备忘录密码查看此备忘录'}}</div> 
-          <div v-show="!canUseTouchBar" style="margin-top: 15px"><input placeholder="输入密码" style="width: 200px" type="password"/></div>
+          <div v-show="!canUseTouchBar" style="margin-top: 15px">
+            <input @enter="unLockPost" v-model="password" placeholder="输入密码" style="width: 200px" type="password"/>
+          </div>
           
       </div>
       <div > 
@@ -26,8 +28,8 @@
 import momentLocale from 'moment/locale/zh-cn';
 import EditorJS from '@editorjs/editorjs';
 import bus from '../../common/js/bus';
+import md5Pass from '../../utils/md5';
 const moment = require('moment');
-
 moment.updateLocale('zh-cn', momentLocale);
 // const AttachesTool = require('@editorjs/attaches');
 // const Personality = require('@editorjs/personality');
@@ -54,7 +56,7 @@ export default {
       content: '',
       time: '',
       isLock: false,
-
+      password: '',
     };
   },
   methods: {
@@ -95,6 +97,13 @@ export default {
             tipInfo: '解锁此备忘录',
           },
         );
+      } else {
+        if (this.validatePassword !== md5Pass(this.password)) {
+          // 密码验证失败，锁定备忘录失败
+          this.$Message.info('密码验证失败，锁定备忘录失败');
+          return;
+        }
+        this.$store.dispatch('app/unlockPosts');
       }
     },
     async save() {
@@ -317,6 +326,9 @@ export default {
     isUnLock() {
       return this.$store.state.app.isUnLock;
     },
+    validatePassword() {
+      return this.$store.state.app.password;
+    },
   },
   destroyed() {
     if (this.timer) { clearTimeout(this.timer); }
@@ -326,8 +338,8 @@ export default {
 
 <style lang="stylus">
   ::-webkit-input-placeholder
-        color rgba(143,143,144,1)
-        text-align center
+      color rgba(143,143,144,1)
+      text-align center
   ::-webkit-scrollbar
         width 10px
     
@@ -372,6 +384,7 @@ export default {
     flex-direction column
     background rgba(40,40,40,1)
     z-index 99
+    
     input
         width 210px
         height 24.5px

@@ -38,6 +38,7 @@
     "@editorjs/warning": "^1.1.1",
     "ant-design-vue": "^1.3.8",
     "axios": "^0.18.0",
+    "blueimp-md5": "^2.11.1",
     "comws": "^2.1.0",
     "fs-extra": "^8.0.1",
     "hexo-cli": "^2.0.0",

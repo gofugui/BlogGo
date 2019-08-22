@@ -1,7 +1,7 @@
 
 import db from '../../../db';
 import device from '../../../tools/device';
-
+import md5Pass from '../../utils/md5';
 function sortByName(arr) {
   const temp = arr;
   const { length } = temp;
@@ -23,6 +23,7 @@ const defaultState = {
   isUnLock: false,
   isWindows: device.isWindows,
   canUseTouchBar: device.canUseTouchBar,
+  password: '',
 };
 export default{
   namespaced: true,
@@ -157,6 +158,15 @@ export default{
       const tags = sortByName(db.select('tags'));
       state.tags = tags;
     },
+    lockPostByPassword(state, { isLock, id, password }) {
+      const updateContent = { isLock };
+      db.update('posts', id, updateContent);
+      const posts = db.select('posts');
+      state.posts = posts;
+      if (password) {
+        state.password = md5Pass(password);
+      }
+    },
   },
   actions: {
     updatePost(context, post) {
@@ -195,6 +205,10 @@ export default{
     },
     resumePost(context, params) {
       context.commit('resumePost', params);
+    },
+    lockPostByPassword(context, params) {
+      context.commit('lockPostByPassword', params);
+      context.commit('unlockPosts');
     },
   },
   getters: {

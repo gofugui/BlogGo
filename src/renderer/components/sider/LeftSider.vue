@@ -2,12 +2,13 @@
   <div @blur="divOnBlur" @focus="divOnFocus" tabindex="1" class="leftSider">
       <Modal
         v-model="modal1"
-        title="Common Modal dialog box title"
+        :title="tipInfo"
           @on-ok="ok"
           @on-cancel="cancel">
-          <p>Content of dialog</p>
-          <p>Content of dialog</p>
-          <p>Content of dialog</p>
+          <div style="display:flex;justify-content:center;align-items:center;">
+            
+            <Input v-model="password" type="password" placeholder="输入密码..." style="width: 300px" />
+          </div>
       </Modal>
       <div  class="item" @dblclick.prevent='onItemDoubleClick(index)' @click.prevent='onItemClick(index)' v-bind:class="{select:sel === index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in factory()" :key="item.id">
         <div class="leftContent">
@@ -34,11 +35,11 @@
 <script>
 import momentLocale from 'moment/locale/zh-cn';
 import bus from '../../common/js/bus';
+import md5Pass from '../../utils/md5';
 
 const { resolveContent, resolveMatchContent } = require('../../../tools/resolveContentJson').default;
 const moment = require('moment');
 moment.updateLocale('zh-cn', momentLocale);
-
 export default {
 
   data() {
@@ -51,6 +52,8 @@ export default {
       modal1: false,
       tagId: '',
       routeParams: '',
+      password: '',
+      tipInfo: '',
     };
   },
   methods: {
@@ -180,9 +183,10 @@ export default {
       }
     },
     lockPost() {
+      const { id, isLock } = this.currentSelPost;
       if (this.canUseTouchBar) {
         const { ipcRenderer } = require('electron');
-        const { id, isLock } = this.currentSelPost;
+
         ipcRenderer.send(
           'asynchronous-touchBar',
           {
@@ -191,7 +195,16 @@ export default {
             params: { isLock: !isLock, id },
           },
         );
-      } else {
+      } else if (!this.validatePassword) {
+        this.tipInfo = '输入备忘录密码锁定备忘录';
+        this.modal1 = true;
+      } else { // 有密码
+        // 移除锁定
+        if (isLock) {
+          this.tipInfo = '验证备忘录密码,移除对此备忘录的锁定';
+        } else {
+          this.tipInfo = '验证备忘录密码,锁定备忘录';
+        }
         this.modal1 = true;
       }
     },
@@ -276,10 +289,22 @@ export default {
       return this.subStrMatchText(subContent, 3) || subContent || '无附加文本';
     },
     ok() {
-      this.$Message.info('Clicked ok');
+      const { id, isLock } = this.currentSelPost;
+
+      if (!this.validatePassword) {
+        this.$store.dispatch('app/lockPostByPassword', { isLock: !isLock, password: this.password, id });
+      } else { // 验证当前密码
+        if (this.validatePassword !== md5Pass(this.password)) {
+          // 密码验证失败，锁定备忘录失败
+          this.$Message.info('密码验证失败，锁定备忘录失败');
+          return;
+        }
+        this.$store.dispatch('app/lockPostByPassword', { isLock: !isLock, id });
+      }
+      // this.$Message.info('Clicked ok');
     },
     cancel() {
-      this.$Message.info('Clicked cancel');
+      // this.$Message.info('Clicked cancel');
     },
     moveToAnotherFolder(tagId) {
       this.$store.dispatch('app/moveToAnotherFolder', { postId: this.id, tagId });
@@ -358,6 +383,9 @@ export default {
       }, []);
       return matchPosts;
     },
+    validatePassword() {
+      return this.$store.state.app.password;
+    },
   },
   updated() {
     if (this.lastSelFolderId !== this.folderSelectId) {
@@ -392,6 +420,7 @@ export default {
 };
 </script>
 <style lang="stylus" scoped>
+   
     .leftSider
       font  bold 14px/20px arial,sans-serif;
       outline 0

@@ -21,7 +21,6 @@ export default {
 <style lang="stylus">
     ::-webkit-scrollbar
         width 10px
-     
     ::-webkit-scrollbar-thumb
         border-radius 10px
         -webkit-box-shadow inset 0 0 8px rgba(0,0,0,0.2)

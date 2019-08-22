@@ -43,6 +43,7 @@ export default {
 <style lang="stylus" scoped>
     ::-webkit-input-placeholder
         color rgba(143,143,144,1)
+        text-align left
     div
       width 214px
     .input

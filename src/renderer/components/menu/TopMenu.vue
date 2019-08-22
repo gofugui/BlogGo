@@ -4,7 +4,7 @@
     <div class="item">
       <button :disabled="!showLeftSider" @click="onShowFolder"> <span :class="['icon','iconfont','menuItem',{'disabled':!showLeftSider}]">&#xe6b5;</span></button>
       <button @click="onLeftSider"><span style="font-size: 18px" class="icon iconfont">&#xe796;</span></button>
-      <button class="demo-icon icon-th-large-outline"/>
+      <button @click="showAppendix" class="demo-icon icon-th-large-outline"/>
       <button @click="deletePost" :disabled="!showLeftSider"><span :class="['icon','iconfont','menuItem',{'disabled':!showLeftSider}]">&#xe790;</span></button>
       <button @click="addPost" :disabled="!showLeftSider"><span :class="['icon','iconfont','menuItem',{'disabled':!showLeftSider}]">&#xe78f;</span></button>
   
@@ -69,6 +69,9 @@ export default {
     },
     deletePost() {
       Bus.$emit('deletePost');
+    },
+    showAppendix() {
+      this.$Message.info('查看附件功能暂未开通');
     },
 
   },
