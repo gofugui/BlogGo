@@ -114,6 +114,7 @@ ipcMain.on('asynchronous-touchBar', async (event, { type, tipInfo, params }) => 
         .then(() => [null, true]).catch(err => [err, null]);
       if (!error) {
         if (res) {
+          event.reply('asynchronous-touchBar-ok');
           store.dispatch(type, params);
           // console.log('You have successfully authenticated with Touch ID!');
         }

@@ -182,8 +182,13 @@ export default {
         });
       }
     },
-    lockPost() {
+
+    lockPost(event, tipInfo = '', callback = null) {
       const { id, isLock } = this.currentSelPost;
+      if (!isLock && callback) {
+        callback();
+        return;
+      }
       if (this.canUseTouchBar) {
         const { ipcRenderer } = require('electron');
 
@@ -191,10 +196,11 @@ export default {
           'asynchronous-touchBar',
           {
             type: 'app/lockPost',
-            tipInfo: isLock ? '移除对此备忘录的锁定' : '锁定此备忘录',
-            params: { isLock: !isLock, id },
+            tipInfo: tipInfo || isLock ? '移除对此备忘录的锁定' : '锁定此备忘录',
+            params: { isLock: tipInfo ? isLock : !isLock, id },
           },
         );
+        ipcRenderer.on('asynchronous-touchBar-ok', () => { callback && callback(); });
         return;
       }
       // 清空密码输入框
@@ -209,6 +215,10 @@ export default {
         } else {
           this.tipInfo = '验证备忘录密码,锁定备忘录';
         }
+        if (tipInfo && typeof tipInfo === 'string') {
+          this.tipInfo = tipInfo;
+        }
+        this.callback = callback;
         this.modal1 = true;
       }
     },
@@ -232,7 +242,6 @@ export default {
       ipcRenderer.send('asynchronous-message', { id, time, isLock });
     },
     divOnFocus() {
-      //
       this.emitMenu();
     },
     divOnBlur() {
@@ -250,16 +259,23 @@ export default {
       //
     },
     deletePost() {
-      const postsArr = this.searchText ? this.sortSearchPosts : this.currentFolderPosts;
-      const value = postsArr.find((item, index) => index === this.sel);
-      if (!value) {
-        this.$Message.info('没有待删除项');
-        return;
+      const delPostCallback = () => {
+        const postsArr = this.searchText ? this.sortSearchPosts : this.currentFolderPosts;
+        const value = postsArr.find((item, index) => index === this.sel);
+        if (!value) {
+          this.$Message.info('没有待删除项');
+          return;
+        }
+        this.$store.dispatch('app/deletePost', value);
+        if (this.sel) {
+          this.sel = this.sel - 1 > -1 ? this.sel - 1 : 0;
+        }
+      };
+      let tipInfo = '以删除此备忘录';
+      if (!this.canUseTouchBar) {
+        tipInfo = '验证密码，以删除此备忘录';
       }
-      this.$store.dispatch('app/deletePost', value);
-      if (this.sel) {
-        this.sel = this.sel - 1 > -1 ? this.sel - 1 : 0;
-      }
+      this.lockPost(null, tipInfo, delPostCallback);
     },
     // 置顶备忘录或取消置顶
     fixPost() {
@@ -300,10 +316,13 @@ export default {
       } else { // 验证当前密码
         if (this.validatePassword !== md5Pass(this.password)) {
           // 密码验证失败，锁定备忘录失败
-          this.$Message.info('密码验证失败，锁定备忘录失败');
+          this.$Message.info('密码验证失败');
           return;
         }
-        this.$store.dispatch('app/lockPostByPassword', { post: { isLock: !isLock, id } });
+        if (this.callback) {
+          this.callback();
+        }
+        this.$store.dispatch('app/lockPostByPassword', { post: { isLock: this.callback ? isLock : !isLock, id } });
       }
       // this.$Message.info('Clicked ok');
     },
@@ -311,7 +330,12 @@ export default {
       // this.$Message.info('Clicked cancel');
     },
     moveToAnotherFolder(tagId) {
-      this.$store.dispatch('app/moveToAnotherFolder', { postId: this.id, tagId });
+      const move = () => this.$store.dispatch('app/moveToAnotherFolder', { postId: this.id, tagId });
+      let tipInfo = '以移动此备忘录';
+      if (!this.canUseTouchBar) {
+        tipInfo = '验证密码，以移动此备忘录';
+      }
+      this.lockPost(null, tipInfo, move);
     },
   },
   mounted() {
