@@ -7,8 +7,6 @@ import {
 } from 'iview';
 import Editor from './pages/editor';
 import store from './store';
-
-import Device from '../tools/device';
 import './assets/font1/css/columns.css';
 import './assets/font2/iconfont.css';
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
@@ -29,7 +27,6 @@ Vue.component('Tag', Tag);
 Vue.component('Split', Split);
 Vue.prototype.$Message = Message;
 
-Vue.prototype.Device = Device;
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

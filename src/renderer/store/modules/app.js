@@ -1,6 +1,6 @@
 
+import { systemPreferences } from 'electron';
 import db from '../../../db';
-import device from '../../../tools/device';
 import md5Pass from '../../utils/md5';
 function sortByName(arr) {
   const temp = arr;
@@ -21,15 +21,17 @@ const defaultState = {
   posts: db.select('posts'),
   folderSelectId,
   isUnLock: false,
-  isWindows: device.isWindows,
-  canUseTouchBar: device.canUseTouchBar,
+  isWindows: process.platform === 'win32',
+  canUseTouchBar: process.platform === 'darwin' && systemPreferences.canPromptTouchID(),
   password: '',
 };
 export default{
   namespaced: true,
   state: defaultState,
   mutations: {
-
+    init(state, initialState) {
+      state = { ...state, ...initialState };
+    },
     addFolder(state, tag) {
       const id = db.add('tags', tag);
       state.folderSelectId = id;
@@ -119,8 +121,8 @@ export default{
       const posts = db.select('posts');
       state.posts = posts;
     },
-    unlockPosts(state, isUnLock = true) {
-      state.isUnLock = isUnLock;
+    unlockPosts(state, flag = true) {
+      state.isUnLock = flag;
     },
     fixedPost(state, { id, fixed }) {
       const updateToFixed = { fixed };
@@ -158,17 +160,16 @@ export default{
       const tags = sortByName(db.select('tags'));
       state.tags = tags;
     },
-    lockPostByPassword(state, { isLock, id, password }) {
-      const updateContent = { isLock };
-      db.update('posts', id, updateContent);
-      const posts = db.select('posts');
-      state.posts = posts;
+    lockPostByPassword(state, password) {
       if (password) {
         state.password = md5Pass(password);
       }
     },
   },
   actions: {
+    init(context, initialState) {
+      context.commit('init', initialState);
+    },
     updatePost(context, post) {
       context.commit('updatePost', post);
     },
@@ -206,9 +207,12 @@ export default{
     resumePost(context, params) {
       context.commit('resumePost', params);
     },
-    lockPostByPassword(context, params) {
-      context.commit('lockPostByPassword', params);
+    lockPostByPassword(context, { post, password }) {
+      context.commit('lockPost', post);
       context.commit('unlockPosts');
+      if (password) {
+        context.commit('lockPostByPassword', password);
+      }
     },
   },
   getters: {

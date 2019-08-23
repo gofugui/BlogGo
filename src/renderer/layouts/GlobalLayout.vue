@@ -16,11 +16,12 @@
    
 </template>
 <script>
-
 import GlobalFooter from './GlobalFooter';
 import TopMenu from '../components/menu/TopMenu';
 import DrawerSider from '../components/sider/DrawerSider';
 import SplitPane from '../components/split-pane';
+
+
 export default {
   name: 'GobalLayout',
   components: {

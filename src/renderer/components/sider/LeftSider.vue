@@ -7,7 +7,7 @@
           @on-cancel="cancel">
           <div style="display:flex;justify-content:center;align-items:center;">
             
-            <Input v-model="password" type="password" placeholder="输入密码..." style="width: 300px" />
+            <Input autofocus v-model="password" type="password" placeholder="输入密码..." style="width: 300px" />
           </div>
       </Modal>
       <div  class="item" @dblclick.prevent='onItemDoubleClick(index)' @click.prevent='onItemClick(index)' v-bind:class="{select:sel === index,unfocus:sel === index&&(!isFocus)}" v-for="(item,index) in factory()" :key="item.id">
@@ -195,7 +195,11 @@ export default {
             params: { isLock: !isLock, id },
           },
         );
-      } else if (!this.validatePassword) {
+        return;
+      }
+      // 清空密码输入框
+      this.password = '';
+      if (!this.validatePassword) {
         this.tipInfo = '输入备忘录密码锁定备忘录';
         this.modal1 = true;
       } else { // 有密码
@@ -292,14 +296,14 @@ export default {
       const { id, isLock } = this.currentSelPost;
 
       if (!this.validatePassword) {
-        this.$store.dispatch('app/lockPostByPassword', { isLock: !isLock, password: this.password, id });
+        this.$store.dispatch('app/lockPostByPassword', { post: { isLock: !isLock, id }, password: this.password });
       } else { // 验证当前密码
         if (this.validatePassword !== md5Pass(this.password)) {
           // 密码验证失败，锁定备忘录失败
           this.$Message.info('密码验证失败，锁定备忘录失败');
           return;
         }
-        this.$store.dispatch('app/lockPostByPassword', { isLock: !isLock, id });
+        this.$store.dispatch('app/lockPostByPassword', { post: { isLock: !isLock, id } });
       }
       // this.$Message.info('Clicked ok');
     },

@@ -13,7 +13,7 @@
           
           <div style="margin-top: 3px"><Icon size="25" color="rgba(255,214,99,1)" type="ios-megaphone" />{{canUseTouchBar?' 请点击👆指纹锁按钮，使用触控ID查看此备忘录':' 请输入备忘录密码查看此备忘录'}}</div> 
           <div v-show="!canUseTouchBar" style="margin-top: 15px">
-            <input @enter="unLockPost" v-model="password" placeholder="输入密码" style="width: 200px" type="password"/>
+            <input @keyup.enter="enter" v-model="password" placeholder="输入密码" style="width: 200px" type="password"/>
           </div>
           
       </div>
@@ -86,6 +86,15 @@ export default {
       }
       return false;
     },
+    enter() {
+      if (this.validatePassword !== md5Pass(this.password)) {
+        // 密码验证失败，锁定备忘录失败
+        this.$Message.info('密码验证失败，锁定备忘录失败');
+        return;
+      }
+      this.isLock = false;
+      this.$store.dispatch('app/unlockPosts');
+    },
     unLockPost() {
       if (this.canUseTouchBar) {
         const { ipcRenderer } = require('electron');
@@ -97,13 +106,6 @@ export default {
             tipInfo: '解锁此备忘录',
           },
         );
-      } else {
-        if (this.validatePassword !== md5Pass(this.password)) {
-          // 密码验证失败，锁定备忘录失败
-          this.$Message.info('密码验证失败，锁定备忘录失败');
-          return;
-        }
-        this.$store.dispatch('app/unlockPosts');
       }
     },
     async save() {
@@ -148,6 +150,7 @@ export default {
       return subTitleTemp || title;
     },
     onEditor({ params } = {}) {
+      this.password = '';
       this.oldId = this.id || '404';
       const {
         id, time, isLock,
@@ -155,7 +158,7 @@ export default {
 
       if (!id || id === '404') {
         this.id = '';
-        document.title = '';
+        document.title = 'BlogGO';
         return;
       }
 

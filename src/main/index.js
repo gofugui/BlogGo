@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, systemPreferences } from 'electron';
 import store from '../renderer/store'; // eslint-disable-line
-// const touchid = require('macos-touchid');
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -47,6 +47,14 @@ function createWindow() {
     }
     mainWindow = null;
   });
+  // mainWindow.once('ready-to-show', () => {
+  //   let canUseTouchBar = false;
+  //   if (process.platform === 'darwin' && systemPreferences.canPromptTouchID()) {
+  //     canUseTouchBar = true;
+  //   }
+
+  //   store.dispatch('app/init', { canUseTouchBar, isUnLock: false });
+  // });
 }
 
 app.on('ready', createWindow);
@@ -102,8 +110,8 @@ ipcMain.on('asynchronous-touchBar', async (event, { type, tipInfo, params }) => 
     try {
       const canPromptTouchID = systemPreferences.canPromptTouchID();
       if (!canPromptTouchID) return;
-      const [error, res] = await systemPreferences.promptTouchID(tipInfo).then(() =>
-        [null, true]).catch(err => [err, null]);
+      const [error, res] = await systemPreferences.promptTouchID(tipInfo)
+        .then(() => [null, true]).catch(err => [err, null]);
       if (!error) {
         if (res) {
           store.dispatch(type, params);
@@ -116,3 +124,11 @@ ipcMain.on('asynchronous-touchBar', async (event, { type, tipInfo, params }) => 
   }
 });
 
+// ipcMain.on('asynchronous-init', () => {
+//   let canUseTouchBar = false;
+//   if (process.platform === 'darwin' && systemPreferences.canPromptTouchID()) {
+//     canUseTouchBar = true;
+//   }
+//   console.log(canUseTouchBar);
+//   store.dispatch('app/init', { canUseTouchBar, isUnLock: false });
+// });
