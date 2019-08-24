@@ -6,11 +6,17 @@
 > 用户可以通过本平台对自己的GitHub Pages进行构建和更新
 
 支持的功能有：
-
-    - 选择主题构建博客主题
-    - 编辑博客内容并上传
+    - 文本编辑 [[complete]]
+    - markdown导入导出 [[next feature]]
+    - 选择主题构建博客主题 [[next feature]]
+    - 编辑博客内容并上传 [[next feature]]
     - ...
-
+#### 图片展示
+![WeChatf1d5cdd94ba1c5c50ab0712e316bd1da](./doc/WeChatf1d5cdd94ba1c5c50ab0712e316bd1da.png)
+![WeChat1e375dbd1ad14707514792892c96e66d](./doc/WeChat1e375dbd1ad14707514792892c96e66d.png)
+![WeChat5aea2e78492fad027c7ad23df2e7fdff](./doc/WeChat5aea2e78492fad027c7ad23df2e7fdff.png)
+#### 目前支持的平台 
+macOS、Windows
 #### Build Setup
 
 ``` bash
@@ -36,7 +42,7 @@ npm run lint
 > 项目在2019/05/10开始启动
 
 ### v0.0.1
-项目初始化
+项目初始化完成
 
 ---
 
