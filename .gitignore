@@ -1,4 +1,3 @@
-    
 .DS_Store
 dist/electron/*
 dist/web/*
@@ -13,3 +12,5 @@ thumbs.db
 !.gitkeep
 yarn-error.log
 docs/dist/
+yarn.lock
+package-lock.json
