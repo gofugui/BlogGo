@@ -1,16 +1,17 @@
 # bloggo
-
+> 我的博客地址： https://gofugui.github.io/
 > GitHub免费博客上传与管理工具
 
 ## 产品愿景
 > 用户可以通过本平台对自己的GitHub Pages进行构建和更新
 
-支持的功能有：
-    - 文本编辑 [[complete]]
-    - markdown导入导出 [[next feature]]
-    - 选择主题构建博客主题 [[next feature]]
-    - 编辑博客内容并上传 [[next feature]]
-    - ...
+#### 当前支持的功能有：
+    - 文本编辑与记录 ✅ 
+#### feature
+    - markdown导入导出 
+    - 选择主题构建博客主题 
+    - 编辑博客内容并上传 
+    - 完善项目文档 
 #### 图片展示
 ![WeChatf1d5cdd94ba1c5c50ab0712e316bd1da](./doc/WeChatf1d5cdd94ba1c5c50ab0712e316bd1da.png)
 ![WeChat1e375dbd1ad14707514792892c96e66d](./doc/WeChat1e375dbd1ad14707514792892c96e66d.png)
@@ -21,7 +22,7 @@ macOS、Windows
 
 ``` bash
 # install dependencies
-npm install
+npm install or yarn
 
 # serve with hot reload at localhost:9080
 npm run dev
@@ -41,8 +42,8 @@ npm run lint
 ## 更新日志
 > 项目在2019/05/10开始启动
 
-### v0.0.1
-项目初始化完成
+### v1.0.0
+项目初始化完成(2019/08/24)
 
 ---
 
