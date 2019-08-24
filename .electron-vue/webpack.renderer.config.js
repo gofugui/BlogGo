@@ -20,11 +20,14 @@ const { VueLoaderPlugin } = require('vue-loader')
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
 let whiteListedModules = ['vue']
-
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    renderer: path.join(__dirname, '../src/renderer/main.js')
+    
+    renderer: path.join(__dirname, '../src/renderer/main.js'),
+    editor: path.join(__dirname,'../src/renderer/editor.js'),
+  
+    
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
@@ -56,7 +59,18 @@ let rendererConfig = {
       },
       {
         test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader']
+        use: ['vue-style-loader', 'css-loader'],
+       
+      },
+      
+      {
+        test: /\.styl(us)?$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'stylus-loader'
+        ],
+
       },
       {
         test: /\.html$/,
@@ -119,9 +133,37 @@ let rendererConfig = {
     __dirname: process.env.NODE_ENV !== 'production',
     __filename: process.env.NODE_ENV !== 'production'
   },
+  optimization: {
+    minimize: process.env.NODE_ENV === 'production' ? true : false, //是否进行代码压缩
+    splitChunks: {
+      chunks: "initial",
+      minSize: 30000, //模块大于30k会被抽离到公共模块
+      minChunks: 2, //模块出现1次就会被抽离到公共模块
+      maxAsyncRequests: 5, //异步模块，一次最多只能被加载5个
+      maxInitialRequests: 3, //入口模块最多只能加载3个
+      name: true,
+      cacheGroups: {
+        default: {
+          name : 'default',
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          name : 'vendors'
+        }
+      }
+    },
+    runtimeChunk:{
+      name: "runtime"
+    }
+  },
   plugins: [
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({filename: 'styles.css'}),
+    
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -130,10 +172,26 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
+      chunks:['runtime','vendors','default','renderer'],
+      
       nodeModules: process.env.NODE_ENV !== 'production'
         ? path.resolve(__dirname, '../node_modules')
         : false
     }),
+    new HtmlWebpackPlugin({
+      filename: 'editor.html',
+      template: path.resolve(__dirname, '../src/index.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      chunks:['runtime', 'vendors', 'default','editor'],   
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    })
+  ,
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()
   ],

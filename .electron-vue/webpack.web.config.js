@@ -14,7 +14,8 @@ const { VueLoaderPlugin } = require('vue-loader')
 let webConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    web: path.join(__dirname, '../src/renderer/main.js')
+    web: path.join(__dirname, '../src/renderer/main.js'),
+    editor: path.join(__dirname,'../src/renderer/editor.js')
   },
   module: {
     rules: [
@@ -43,8 +44,10 @@ let webConfig = {
       },
       {
         test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader']
+        use: ['vue-style-loader','css-loader'],
+      
       },
+      
       {
         test: /\.html$/,
         use: 'vue-html-loader'
@@ -94,7 +97,7 @@ let webConfig = {
   plugins: [
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({filename: 'styles.css'}),
-    new HtmlWebpackPlugin({
+    ...[new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
@@ -104,6 +107,17 @@ let webConfig = {
       },
       nodeModules: false
     }),
+    new HtmlWebpackPlugin({
+      filename: 'editor.html',
+      template: path.resolve(__dirname, '../src/editor.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      nodeModules: false
+    }),
+  ],
     new webpack.DefinePlugin({
       'process.env.IS_WEB': 'true'
     }),

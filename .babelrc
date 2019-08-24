@@ -24,7 +24,11 @@
           "modules": false
         }],
         "stage-0"
-      ]
+      ],
+      "plugins": [["import", {
+        "libraryName": "iview",
+        "libraryDirectory": "src/components"
+      }]]
     },
     "web": {
       "presets": [
