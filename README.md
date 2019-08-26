@@ -13,6 +13,13 @@
     - 编辑博客内容并上传 
     - 完善项目文档 
 #### 图片展示
+
+##### windows
+
+![1566785768](./doc/1566785768.jpg)
+
+##### macOS
+
 ![WeChatf1d5cdd94ba1c5c50ab0712e316bd1da](./doc/WeChatf1d5cdd94ba1c5c50ab0712e316bd1da.png)
 ![WeChat1e375dbd1ad14707514792892c96e66d](./doc/WeChat1e375dbd1ad14707514792892c96e66d.png)
 ![WeChat5aea2e78492fad027c7ad23df2e7fdff](./doc/WeChat5aea2e78492fad027c7ad23df2e7fdff.png)
