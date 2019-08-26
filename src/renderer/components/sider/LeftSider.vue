@@ -200,7 +200,7 @@ export default {
             params: { isLock: tipInfo ? isLock : !isLock, id },
           },
         );
-        ipcRenderer.on('asynchronous-touchBar-ok', () => { callback && callback(); });
+        ipcRenderer.on('asynchronous-touchBar-ok', () => { if (callback) callback(); });
         return;
       }
       // 清空密码输入框
